@@ -8,6 +8,7 @@ import { User } from '../entities/user.entity';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
+
   constructor(
     private config: ConfigService,
     @InjectRepository(User) private userRepository: Repository<User>,
@@ -31,4 +32,5 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       role: user.role,
     };
   }
+  
 }
