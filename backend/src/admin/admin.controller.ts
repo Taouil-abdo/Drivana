@@ -59,6 +59,8 @@ export class AdminController {
     return this.adminService.rejectDriver(id);
   }
 
+  
+  
   @Get('reservations')
   @ApiOperation({ summary: 'Get all reservations' })
   getAllReservations(@Query('status') status?: string) {
@@ -70,4 +72,6 @@ export class AdminController {
   updateReservationStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.adminService.updateReservationStatus(id, status);
   }
+
+
 }
