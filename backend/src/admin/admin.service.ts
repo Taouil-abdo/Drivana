@@ -116,4 +116,34 @@ export class AdminService {
     reservation.status = status as ReservationStatus;
     return this.reservationRepository.save(reservation);
   }
+
+  // Vehicle Management
+  async getAllVehicles() {
+    return this.vehicleRepository.find({ order: { createdAt: 'DESC' } });
+  }
+
+  async createVehicle(data: any) {
+    const vehicle = this.vehicleRepository.create(data);
+    return this.vehicleRepository.save(vehicle);
+  }
+
+  async updateVehicle(id: string, data: any) {
+    const vehicle = await this.vehicleRepository.findOne({ where: { id } });
+    if (!vehicle) throw new NotFoundException('Vehicle not found');
+    Object.assign(vehicle, data);
+    return this.vehicleRepository.save(vehicle);
+  }
+
+  async deleteVehicle(id: string) {
+    const result = await this.vehicleRepository.delete(id);
+    if (result.affected === 0) throw new NotFoundException('Vehicle not found');
+    return { message: 'Vehicle deleted successfully' };
+  }
+
+  async getAllDrivers() {
+    return this.driverRepository.find({
+      relations: ['user'],
+      order: { createdAt: 'DESC' },
+    });
+  }
 }

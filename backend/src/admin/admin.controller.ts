@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Delete, Param, Body, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { JwtGuard, RolesGuard, Roles } from '../auth';
@@ -73,5 +73,33 @@ export class AdminController {
     return this.adminService.updateReservationStatus(id, status);
   }
 
+  @Get('vehicles')
+  @ApiOperation({ summary: 'Get all vehicles' })
+  getAllVehicles() {
+    return this.adminService.getAllVehicles();
+  }
 
+  @Post('vehicles')
+  @ApiOperation({ summary: 'Create vehicle' })
+  createVehicle(@Body() body: any) {
+    return this.adminService.createVehicle(body);
+  }
+
+  @Patch('vehicles/:id')
+  @ApiOperation({ summary: 'Update vehicle' })
+  updateVehicle(@Param('id') id: string, @Body() body: any) {
+    return this.adminService.updateVehicle(id, body);
+  }
+
+  @Delete('vehicles/:id')
+  @ApiOperation({ summary: 'Delete vehicle' })
+  deleteVehicle(@Param('id') id: string) {
+    return this.adminService.deleteVehicle(id);
+  }
+
+  @Get('drivers')
+  @ApiOperation({ summary: 'Get all drivers' })
+  getAllDrivers() {
+    return this.adminService.getAllDrivers();
+  }
 }
