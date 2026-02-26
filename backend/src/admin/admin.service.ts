@@ -101,6 +101,39 @@ export class AdminService {
     return this.driverRepository.save(driver);
   }
 
+  async suspendDriver(id: string) {
+    const driver = await this.driverRepository.findOne({ where: { id } });
+    if (!driver) throw new NotFoundException('Driver not found');
+    driver.status = DriverStatus.SUSPENDED;
+    return this.driverRepository.save(driver);
+  }
+
+  async createDriver(data: { userId: string; licenseNumber: string; experienceYears: number }) {
+    const user = await this.userRepository.findOne({ where: { id: data.userId } });
+    if (!user) throw new NotFoundException('User not found');
+    const driver = this.driverRepository.create({
+      user,
+      licenseNumber: data.licenseNumber,
+      experienceYears: data.experienceYears,
+      status: DriverStatus.APPROVED,
+    });
+    const saved = await this.driverRepository.save(driver);
+    user.role = Role.DRIVER;
+    await this.userRepository.save(user);
+    return saved;
+  }
+
+  async deleteDriver(id: string) {
+    const driver = await this.driverRepository.findOne({ where: { id }, relations: ['user'] });
+    if (!driver) throw new NotFoundException('Driver not found');
+    if (driver.user) {
+      driver.user.role = Role.CLIENT;
+      await this.userRepository.save(driver.user);
+    }
+    await this.driverRepository.delete(id);
+    return { message: 'Driver removed successfully' };
+  }
+
   // Reservation Management
   async getAllReservations(filters?: any) {
     return this.reservationRepository.find({

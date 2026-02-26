@@ -47,6 +47,12 @@ export class AdminController {
     return this.adminService.getPendingDrivers();
   }
 
+  @Post('drivers')
+  @ApiOperation({ summary: 'Create driver from existing user' })
+  createDriver(@Body() body: { userId: string; licenseNumber: string; experienceYears: number }) {
+    return this.adminService.createDriver(body);
+  }
+
   @Patch('drivers/:id/approve')
   @ApiOperation({ summary: 'Approve driver' })
   approveDriver(@Param('id') id: string) {
@@ -57,6 +63,18 @@ export class AdminController {
   @ApiOperation({ summary: 'Reject driver' })
   rejectDriver(@Param('id') id: string) {
     return this.adminService.rejectDriver(id);
+  }
+
+  @Patch('drivers/:id/suspend')
+  @ApiOperation({ summary: 'Suspend driver' })
+  suspendDriver(@Param('id') id: string) {
+    return this.adminService.suspendDriver(id);
+  }
+
+  @Delete('drivers/:id')
+  @ApiOperation({ summary: 'Delete driver' })
+  deleteDriver(@Param('id') id: string) {
+    return this.adminService.deleteDriver(id);
   }
 
   

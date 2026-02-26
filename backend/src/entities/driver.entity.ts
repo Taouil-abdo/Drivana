@@ -5,6 +5,7 @@ export enum DriverStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
+  SUSPENDED = 'SUSPENDED',
 }
 
 @Entity('drivers')
