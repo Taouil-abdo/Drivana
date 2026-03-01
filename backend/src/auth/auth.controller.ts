@@ -30,4 +30,15 @@ export class AuthController {
   getProfile(@GetUser() user: any) {
     return user;
   }
+
+  @Post('become-driver')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Submit driver application' })
+  becomeDriver(
+    @GetUser() user: any,
+    @Body() dto: { licenseNumber: string; experienceYears: number; photo?: string },
+  ) {
+    return this.authService.becomeDriver(user.id, dto);
+  }
 }
