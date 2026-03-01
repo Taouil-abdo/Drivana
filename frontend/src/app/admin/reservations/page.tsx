@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store/auth';
-import AdminSidebar from '@/components/admin/AdminSidebar';
 import apiClient from '@/lib/api';
+import ToastContainer from '@/components/admin/Toast';
+import { useToast } from '@/lib/useToast';
 
 const STATUS_STYLE: Record<string, string> = {
   PENDING:   'bg-[#f3b85a]/20 text-[#f3b85a] border-[#f3b85a]/30',
@@ -12,36 +11,25 @@ const STATUS_STYLE: Record<string, string> = {
   COMPLETED: 'bg-[#42d99a]/20 text-[#42d99a] border-[#42d99a]/30',
   CANCELLED: 'bg-[#f87171]/20 text-[#f87171] border-[#f87171]/30',
 };
-
 const STATUSES = ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
 const FILTERS  = ['ALL', ...STATUSES];
 
 export default function AdminReservations() {
-  const { user } = useAuthStore();
-  const router   = useRouter();
+  const { toasts, toast, remove } = useToast();
 
-  const [mounted,      setMounted]      = useState(false);
-  const [sidebar,      setSidebar]      = useState(false);
   const [reservations, setReservations] = useState<any[]>([]);
   const [loading,      setLoading]      = useState(true);
   const [filter,       setFilter]       = useState('ALL');
   const [search,       setSearch]       = useState('');
   const [updating,     setUpdating]     = useState<string | null>(null);
 
-  useEffect(() => { setMounted(true); }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    if (!user)                 { router.push('/login');     return; }
-    if (user.role !== 'ADMIN') { router.push('/dashboard'); return; }
-    fetchReservations();
-  }, [mounted, user]);
+  useEffect(() => { fetchReservations(); }, []);
 
   const fetchReservations = async () => {
     try {
       const res = await apiClient.get('/admin/reservations');
       setReservations(res.data ?? []);
-    } catch (e) { console.error(e); }
+    } catch { toast('Failed to load reservations', 'error'); }
     finally { setLoading(false); }
   };
 
@@ -50,11 +38,10 @@ export default function AdminReservations() {
     try {
       await apiClient.patch(`/admin/reservations/${id}/status`, { status });
       setReservations(r => r.map(x => x.id === id ? { ...x, status } : x));
-    } catch (e) { console.error(e); }
+      toast('Status updated', 'success');
+    } catch { toast('Failed to update status', 'error'); }
     finally { setUpdating(null); }
   };
-
-  if (!mounted || !user || user.role !== 'ADMIN') return null;
 
   const counts = FILTERS.reduce((acc, f) => {
     acc[f] = f === 'ALL' ? reservations.length : reservations.filter(r => r.status === f).length;
@@ -73,116 +60,90 @@ export default function AdminReservations() {
     .reduce((sum, r) => sum + Number(r.totalPrice ?? 0), 0);
 
   return (
-    <div className="flex min-h-screen">
-      <AdminSidebar isOpen={sidebar} onClose={() => setSidebar(false)} />
+    <>
+      <ToastContainer toasts={toasts} remove={remove} />
 
-      <div className="flex-1 overflow-x-hidden px-3 py-4 sm:px-5">
-
-        {/* Mobile topbar */}
-        <div className="mb-4 flex items-center justify-between rounded-2xl border border-[#1f5972] bg-[#051a28]/80 p-3 xl:hidden">
-          <button onClick={() => setSidebar(true)} className="glass-panel rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-widest text-[#c8f2ff]">Menu</button>
-          <p className="text-sm font-black uppercase tracking-widest text-[#e8fbff]">Admin</p>
-          <span className="text-xs text-[#4a8fa8]">Panel</span>
+      <section className="glass-panel scan-lines fade-rise mb-4 rounded-2xl p-4 sm:p-5 flex items-start justify-between">
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.24em] text-[#79afc5]">Admin Control Center</p>
+          <h1 className="mt-1 text-2xl font-black uppercase leading-none tracking-tight text-[#e8fbff] sm:text-3xl">Reservations</h1>
+          <p className="mt-1 text-sm text-[#9cc1d1]">Monitor and manage all bookings.</p>
         </div>
-
-        {/* Header */}
-        <section className="glass-panel scan-lines fade-rise mb-4 rounded-2xl p-4 sm:p-5 flex items-start justify-between">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.24em] text-[#79afc5]">Admin Control Center</p>
-            <h1 className="mt-1 text-2xl font-black uppercase leading-none tracking-tight text-[#e8fbff] sm:text-3xl">Reservations</h1>
-            <p className="mt-1 text-sm text-[#9cc1d1]">Monitor and manage all bookings.</p>
-          </div>
-          <div className="glass-panel rounded-2xl px-4 py-2 text-right">
-            <p className="text-[10px] uppercase tracking-widest text-[#4a8fa8]">Total Revenue</p>
-            <p className="text-lg font-black text-[#42d99a]">${totalRevenue.toFixed(2)}</p>
-          </div>
-        </section>
-
-        {/* Filter tabs */}
-        <div className="mb-4 flex flex-wrap gap-2">
-          {FILTERS.map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`rounded-xl border px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition
-                ${filter === f
-                  ? 'border-[#2ec5f5]/50 bg-[#2ec5f5]/15 text-[#2ec5f5]'
-                  : 'border-[#1e5670] bg-transparent text-[#7ea8bc] hover:text-[#c8f2ff]'}`}
-            >
-              {f} <span className="ml-1 opacity-70">{counts[f]}</span>
-            </button>
-          ))}
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Search client or vehicle..."
-            className="ml-auto rounded-xl border border-[#1e5670] bg-[#051a28] px-3 py-1.5 text-xs text-[#c8f2ff] placeholder-[#4a8fa8] outline-none focus:border-[#2ec5f5]"
-          />
+        <div className="glass-panel rounded-2xl px-4 py-2 text-right">
+          <p className="text-[10px] uppercase tracking-widest text-[#4a8fa8]">Total Revenue</p>
+          <p className="text-lg font-black text-[#42d99a]">${totalRevenue.toFixed(2)}</p>
         </div>
+      </section>
 
-        {loading ? (
-          <div className="glass-panel rounded-2xl p-10 text-center">
-            <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#2ec5f5] border-t-transparent" />
-          </div>
-        ) : (
-          <div className="glass-panel scan-lines rounded-2xl overflow-hidden">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-[#1e5670] text-[#4a8fa8] uppercase tracking-[0.12em]">
-                  <th className="px-4 py-3 text-left">Client</th>
-                  <th className="px-4 py-3 text-left hidden sm:table-cell">Vehicle</th>
-                  <th className="px-4 py-3 text-left hidden md:table-cell">Driver</th>
-                  <th className="px-4 py-3 text-left hidden lg:table-cell">Dates</th>
-                  <th className="px-4 py-3 text-left hidden md:table-cell">Price</th>
-                  <th className="px-4 py-3 text-left">Status</th>
-                  <th className="px-4 py-3 text-right">Change Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visible.length === 0 ? (
-                  <tr><td colSpan={7} className="px-4 py-10 text-center text-[#4a8fa8]">No reservations found</td></tr>
-                ) : visible.map((r: any) => (
-                  <tr key={r.id} className="border-b border-[#0d2e42] hover:bg-[#0a2233]/60 transition">
-                    <td className="px-4 py-3">
-                      <p className="font-semibold text-[#ddf8ff]">{r.client?.firstName} {r.client?.lastName}</p>
-                      <p className="text-[10px] text-[#7ea8bc]">{r.client?.email}</p>
-                    </td>
-                    <td className="px-4 py-3 hidden sm:table-cell">
-                      <p className="text-[#c8f2ff]">{r.vehicle?.brand} {r.vehicle?.model}</p>
-                      <p className="text-[10px] text-[#7ea8bc]">{r.vehicle?.registration}</p>
-                    </td>
-                    <td className="px-4 py-3 text-[#c8f2ff] hidden md:table-cell">
-                      {r.driver ? `${r.driver.user?.firstName ?? ''} ${r.driver.user?.lastName ?? ''}`.trim() || '—' : '—'}
-                    </td>
-                    <td className="px-4 py-3 hidden lg:table-cell">
-                      <p className="text-[#c8f2ff]">{new Date(r.startDate).toLocaleDateString()}</p>
-                      <p className="text-[10px] text-[#7ea8bc]">→ {new Date(r.endDate).toLocaleDateString()}</p>
-                    </td>
-                    <td className="px-4 py-3 font-semibold text-[#c8f2ff] hidden md:table-cell">
-                      ${Number(r.totalPrice ?? 0).toFixed(2)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase ${STATUS_STYLE[r.status] ?? ''}`}>
-                        {r.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <select
-                        value={r.status}
-                        disabled={updating === r.id}
-                        onChange={e => updateStatus(r.id, e.target.value)}
-                        className="rounded-lg border border-[#1e5670] bg-[#051a28] px-2 py-1 text-[10px] uppercase text-[#c8f2ff] outline-none disabled:opacity-50"
-                      >
-                        {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+      <div className="mb-4 flex flex-wrap gap-2">
+        {FILTERS.map(f => (
+          <button key={f} onClick={() => setFilter(f)}
+            className={`rounded-xl border px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition
+              ${filter === f ? 'border-[#2ec5f5]/50 bg-[#2ec5f5]/15 text-[#2ec5f5]' : 'border-[#1e5670] text-[#7ea8bc] hover:text-[#c8f2ff]'}`}>
+            {f} <span className="ml-1 opacity-70">{counts[f]}</span>
+          </button>
+        ))}
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search client or vehicle..."
+          className="ml-auto rounded-xl border border-[#1e5670] bg-[#051a28] px-3 py-1.5 text-xs text-[#c8f2ff] placeholder-[#4a8fa8] outline-none focus:border-[#2ec5f5]" />
       </div>
-    </div>
+
+      {loading ? (
+        <div className="glass-panel rounded-2xl p-10 text-center">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#2ec5f5] border-t-transparent" />
+        </div>
+      ) : (
+        <div className="glass-panel scan-lines rounded-2xl overflow-hidden">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-[#1e5670] text-[#4a8fa8] uppercase tracking-[0.12em]">
+                <th className="px-4 py-3 text-left">Client</th>
+                <th className="px-4 py-3 text-left hidden sm:table-cell">Vehicle</th>
+                <th className="px-4 py-3 text-left hidden md:table-cell">Type</th>
+                <th className="px-4 py-3 text-left hidden lg:table-cell">Dates</th>
+                <th className="px-4 py-3 text-left hidden md:table-cell">Price</th>
+                <th className="px-4 py-3 text-left">Status</th>
+                <th className="px-4 py-3 text-right">Change</th>
+              </tr>
+            </thead>
+            <tbody>
+              {visible.length === 0 ? (
+                <tr><td colSpan={7} className="px-4 py-10 text-center text-[#4a8fa8]">No reservations found</td></tr>
+              ) : visible.map((r: any) => (
+                <tr key={r.id} className="border-b border-[#0d2e42] hover:bg-[#0a2233]/60 transition">
+                  <td className="px-4 py-3">
+                    <p className="font-semibold text-[#ddf8ff]">{r.client?.firstName} {r.client?.lastName}</p>
+                    <p className="text-[10px] text-[#7ea8bc]">{r.client?.email}</p>
+                  </td>
+                  <td className="px-4 py-3 hidden sm:table-cell">
+                    <p className="text-[#c8f2ff]">{r.vehicle?.brand} {r.vehicle?.model}</p>
+                    <p className="text-[10px] text-[#7ea8bc]">{r.vehicle?.registration}</p>
+                  </td>
+                  <td className="px-4 py-3 hidden md:table-cell">
+                    <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold
+                      ${r.serviceType === 'WITH_DRIVER' ? 'border-[#49e2d2]/30 bg-[#49e2d2]/10 text-[#49e2d2]' : 'border-[#1e5670] text-[#7ea8bc]'}`}>
+                      {r.serviceType === 'WITH_DRIVER' ? '🧑✈️ Driver' : '🚗 Car Only'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 hidden lg:table-cell">
+                    <p className="text-[#c8f2ff]">{new Date(r.startDate).toLocaleDateString()}</p>
+                    <p className="text-[10px] text-[#7ea8bc]">→ {new Date(r.endDate).toLocaleDateString()}</p>
+                  </td>
+                  <td className="px-4 py-3 font-semibold text-[#c8f2ff] hidden md:table-cell">${Number(r.totalPrice ?? 0).toFixed(2)}</td>
+                  <td className="px-4 py-3">
+                    <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase ${STATUS_STYLE[r.status] ?? ''}`}>{r.status}</span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <select value={r.status} disabled={updating === r.id} onChange={e => updateStatus(r.id, e.target.value)}
+                      className="rounded-lg border border-[#1e5670] bg-[#051a28] px-2 py-1 text-[10px] uppercase text-[#c8f2ff] outline-none disabled:opacity-50">
+                      {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
   );
 }
