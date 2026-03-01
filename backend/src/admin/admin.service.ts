@@ -179,4 +179,32 @@ export class AdminService {
       order: { createdAt: 'DESC' },
     });
   }
+
+  async getDriverById(id: string) {
+    const driver = await this.driverRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
+    if (!driver) throw new NotFoundException('Driver not found');
+    return driver;
+  }
+
+  async getRevenueByMonth() {
+    const rows = await this.reservationRepository
+      .createQueryBuilder('r')
+      .select("TO_CHAR(r.createdAt, 'YYYY-MM')", 'month')
+      .addSelect('SUM(r.totalPrice)', 'revenue')
+      .addSelect('COUNT(r.id)', 'count')
+      .where('r.status = :status', { status: ReservationStatus.COMPLETED })
+      .groupBy("TO_CHAR(r.createdAt, 'YYYY-MM')")
+      .orderBy("TO_CHAR(r.createdAt, 'YYYY-MM')", 'ASC')
+      .limit(12)
+      .getRawMany();
+
+    return rows.map(r => ({
+      month:   r.month,
+      revenue: Number(r.revenue ?? 0),
+      count:   Number(r.count   ?? 0),
+    }));
+  }
 }

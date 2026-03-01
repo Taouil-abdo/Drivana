@@ -120,4 +120,16 @@ export class AdminController {
   getAllDrivers() {
     return this.adminService.getAllDrivers();
   }
+
+  @Get('drivers/:id')
+  @ApiOperation({ summary: 'Get driver by ID' })
+  getDriverById(@Param('id') id: string) {
+    return this.adminService.getDriverById(id);
+  }
+
+  @Get('revenue/monthly')
+  @ApiOperation({ summary: 'Get revenue breakdown by month' })
+  getRevenueByMonth() {
+    return this.adminService.getRevenueByMonth();
+  }
 }
