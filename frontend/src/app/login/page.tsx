@@ -20,12 +20,13 @@ export default function LoginPage() {
 
     try {
       const { data } = await apiClient.post('/auth/login', formData);
-      console.log(data.user.name , data.token)
       setAuth(data.user, data.token);
-      
+
       // Redirect based on user role
       if (data.user.role === 'ADMIN') {
         router.push('/admin/dashboard');
+      } else if (data.user.role === 'DRIVER') {
+        router.push('/driver/dashboard');
       } else {
         router.push('/');
       }
