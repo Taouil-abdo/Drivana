@@ -88,22 +88,21 @@
 
 ## ❌ TODO
 
-### Client Module — Backend (0% done)
-- [ ] `GET /vehicles` — public list of available vehicles (no auth)
-- [ ] `GET /vehicles/:id` — single vehicle detail (no auth)
-- [ ] `POST /reservations` — create a reservation (pick dates, serviceType, vehicle)
-- [ ] `GET /reservations/my` — client's own reservations
-- [ ] `PATCH /reservations/:id/cancel` — client cancels their reservation
-- [ ] `POST /reviews` — client submits a review after completed trip
-- [ ] `GET /reviews/vehicle/:id` — reviews for a vehicle
+### Client Module — Backend ✅
+- [x] `GET /client/vehicles` — public list of available vehicles
+- [x] `GET /client/vehicles/:id` — single vehicle detail
+- [x] `POST /client/reservations` — create reservation (calculates price, marks vehicle as RENTED)
+- [x] `GET /client/reservations` — client's own reservations
+- [x] `PATCH /client/reservations/:id/cancel` — cancel reservation, restores vehicle to AVAILABLE
+- [x] `GET /client/stats` — total, active, completed, spent
 
-### Client Panel — Frontend (0% done)
-- [ ] `/dashboard` — client home after login (profile summary, recent bookings)
-- [ ] `/vehicles` — browse available cars, filter by price/brand/status
-- [ ] `/vehicles/:id` — vehicle detail page with booking button
-- [ ] `/booking/:vehicleId` — booking form (pick dates, CAR_ONLY or WITH_DRIVER, see calculated total price)
-- [ ] `/my-reservations` — client sees all their bookings, can cancel PENDING ones
-- [ ] `/become-driver` — form for client to submit driver application (licenseNumber, experienceYears, photo)
+### Client Panel — Frontend ✅
+- [x] Shared client layout — sticky navbar, mobile menu, auth guard, role redirect
+- [x] `/client/dashboard` — welcome, KPI cards, recent bookings, quick links
+- [x] `/client/vehicles` — browse available cars, search, max price filter, book button
+- [x] `/client/booking/:vehicleId` — booking form, date picker, service type (CAR_ONLY/WITH_DRIVER), live price calculation, confirm
+- [x] `/client/reservations` — all bookings, filter tabs, cancel with confirm step, driver info if assigned
+- [x] Login redirect — CLIENT → `/client/dashboard`
 
 ### Driver Panel — Frontend (missing pages)
 - [ ] `/driver/reservations` — full reservations page (separate from dashboard)
@@ -136,9 +135,8 @@
 
 ## Priority Order (what to build next)
 
-1. **Client backend** — vehicles public endpoint + reservations CRUD
-2. **Client frontend** — vehicles browse + booking form + my-reservations
-3. **Become-driver page** — client submits application from UI
-4. **Driver profile page** — driver can see/edit their info
-5. **Payment module** — wire the existing entity
-6. **Review module** — wire the existing entity
+1. **Become-driver page** — `/client/become-driver` form so a client can apply to be a driver
+2. **Driver profile page** — driver can edit their info
+3. **Payment module** — wire the existing entity
+4. **Review module** — wire the existing entity
+5. **General polish** — pagination, 404 page, loading skeletons, password reset

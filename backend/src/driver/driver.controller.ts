@@ -1,5 +1,5 @@
-import { Controller, Get, Patch, Param, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, Patch, Post, Param, Body, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { DriverService } from './driver.service';
 import { JwtGuard, RolesGuard, Roles } from '../auth';
 import { GetUser } from '../auth/decorators/get-user.decorator';
@@ -34,6 +34,25 @@ export class DriverController {
   @ApiOperation({ summary: 'Mark reservation as completed' })
   completeReservation(@GetUser() user: any, @Param('id') id: string) {
     return this.driverService.completeReservation(user.id, id);
+  }
+
+  @Patch('reservations/:id/accept')
+  @ApiOperation({ summary: 'Accept a pending reservation' })
+  acceptReservation(@GetUser() user: any, @Param('id') id: string) {
+    return this.driverService.acceptReservation(user.id, id);
+  }
+
+  @Patch('reservations/:id/reject')
+  @ApiOperation({ summary: 'Reject a pending reservation' })
+  rejectReservation(@GetUser() user: any, @Param('id') id: string) {
+    return this.driverService.rejectReservation(user.id, id);
+  }
+
+  @Post('drivers/:id/rate')
+  @ApiOperation({ summary: 'Rate a driver after a completed trip' })
+  @ApiBody({ schema: { properties: { rating: { type: 'number' }, comment: { type: 'string' } } } })
+  rateDriver(@GetUser() user: any, @Param('id') id: string, @Body() body: { rating: number; comment?: string }) {
+    return this.driverService.rateDriver(user.id, id, body.rating, body.comment);
   }
 
   @Patch('availability')

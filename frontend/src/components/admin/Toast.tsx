@@ -11,9 +11,9 @@ export interface Toast {
 }
 
 const STYLES: Record<ToastType, string> = {
-  success: 'border-[#42d99a]/40 bg-[#042318] text-[#42d99a]',
+  success: 'border-[#fe7f32]/40 bg-[#042318] text-[#fe7f32]',
   error:   'border-[#f87171]/40 bg-[#1a0808] text-[#f87171]',
-  info:    'border-[#2ec5f5]/40 bg-[#021a28] text-[#2ec5f5]',
+  info:    'border-[#fe7f32]/40 bg-[#021a28] text-[#fe7f32]',
 };
 
 const ICONS: Record<ToastType, string> = {

@@ -7,8 +7,8 @@ import { useToast } from '@/lib/useToast';
 
 const STATUS_STYLE: Record<string, string> = {
   PENDING:   'bg-[#f3b85a]/20 text-[#f3b85a] border-[#f3b85a]/30',
-  CONFIRMED: 'bg-[#2ec5f5]/20 text-[#2ec5f5] border-[#2ec5f5]/30',
-  COMPLETED: 'bg-[#42d99a]/20 text-[#42d99a] border-[#42d99a]/30',
+  CONFIRMED: 'bg-[#fe7f32]/20 text-[#fe7f32] border-[#fe7f32]/30',
+  COMPLETED: 'bg-[#fe7f32]/20 text-[#fe7f32] border-[#fe7f32]/30',
   CANCELLED: 'bg-[#f87171]/20 text-[#f87171] border-[#f87171]/30',
 };
 const STATUSES = ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
@@ -65,13 +65,13 @@ export default function AdminReservations() {
 
       <section className="glass-panel scan-lines fade-rise mb-4 rounded-2xl p-4 sm:p-5 flex items-start justify-between">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.24em] text-[#79afc5]">Admin Control Center</p>
-          <h1 className="mt-1 text-2xl font-black uppercase leading-none tracking-tight text-[#e8fbff] sm:text-3xl">Reservations</h1>
-          <p className="mt-1 text-sm text-[#9cc1d1]">Monitor and manage all bookings.</p>
+          <p className="section-label text-[10px] uppercase tracking-[0.24em]">Admin Control Center</p>
+          <h1 className="page-title mt-1 text-2xl font-black uppercase leading-none tracking-tight sm:text-3xl">Reservations</h1>
+          <p className="subtitle mt-1 text-sm">Monitor and manage all bookings.</p>
         </div>
         <div className="glass-panel rounded-2xl px-4 py-2 text-right">
-          <p className="text-[10px] uppercase tracking-widest text-[#4a8fa8]">Total Revenue</p>
-          <p className="text-lg font-black text-[#42d99a]">${totalRevenue.toFixed(2)}</p>
+          <p className="text-[10px] uppercase tracking-widest text-[#888888]">Total Revenue</p>
+          <p className="text-lg font-black text-[#fe7f32]">${totalRevenue.toFixed(2)}</p>
         </div>
       </section>
 
@@ -79,23 +79,23 @@ export default function AdminReservations() {
         {FILTERS.map(f => (
           <button key={f} onClick={() => setFilter(f)}
             className={`rounded-xl border px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition
-              ${filter === f ? 'border-[#2ec5f5]/50 bg-[#2ec5f5]/15 text-[#2ec5f5]' : 'border-[#1e5670] text-[#7ea8bc] hover:text-[#c8f2ff]'}`}>
+              ${filter === f ? 'border-[#fe7f32]/50 bg-[#fe7f32]/15 text-[#fe7f32]' : 'border-[#3a3a3a] text-[#aaaaaa] hover:text-[#eeeeee]'}`}>
             {f} <span className="ml-1 opacity-70">{counts[f]}</span>
           </button>
         ))}
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search client or vehicle..."
-          className="ml-auto rounded-xl border border-[#1e5670] bg-[#051a28] px-3 py-1.5 text-xs text-[#c8f2ff] placeholder-[#4a8fa8] outline-none focus:border-[#2ec5f5]" />
+          className="ml-auto rounded-xl border border-[#3a3a3a] bg-[#1c1c1c] px-3 py-1.5 text-xs text-[#eeeeee] placeholder-[#888888] outline-none focus:border-[#fe7f32]" />
       </div>
 
       {loading ? (
         <div className="glass-panel rounded-2xl p-10 text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#2ec5f5] border-t-transparent" />
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#fe7f32] border-t-transparent" />
         </div>
       ) : (
         <div className="glass-panel scan-lines rounded-2xl overflow-hidden">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-[#1e5670] text-[#4a8fa8] uppercase tracking-[0.12em]">
+              <tr className="border-b border-[#3a3a3a] text-[#888888] uppercase tracking-[0.12em]">
                 <th className="px-4 py-3 text-left">Client</th>
                 <th className="px-4 py-3 text-left hidden sm:table-cell">Vehicle</th>
                 <th className="px-4 py-3 text-left hidden md:table-cell">Type</th>
@@ -107,34 +107,34 @@ export default function AdminReservations() {
             </thead>
             <tbody>
               {visible.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-10 text-center text-[#4a8fa8]">No reservations found</td></tr>
+                <tr><td colSpan={7} className="px-4 py-10 text-center text-[#888888]">No reservations found</td></tr>
               ) : visible.map((r: any) => (
-                <tr key={r.id} className="border-b border-[#0d2e42] hover:bg-[#0a2233]/60 transition">
+                <tr key={r.id} className="border-b border-[#0d2e42] hover:bg-[#222222]/60 transition">
                   <td className="px-4 py-3">
                     <p className="font-semibold text-[#ddf8ff]">{r.client?.firstName} {r.client?.lastName}</p>
-                    <p className="text-[10px] text-[#7ea8bc]">{r.client?.email}</p>
+                    <p className="text-[10px] text-[#aaaaaa]">{r.client?.email}</p>
                   </td>
                   <td className="px-4 py-3 hidden sm:table-cell">
-                    <p className="text-[#c8f2ff]">{r.vehicle?.brand} {r.vehicle?.model}</p>
-                    <p className="text-[10px] text-[#7ea8bc]">{r.vehicle?.registration}</p>
+                    <p className="text-[#eeeeee]">{r.vehicle?.brand} {r.vehicle?.model}</p>
+                    <p className="text-[10px] text-[#aaaaaa]">{r.vehicle?.registration}</p>
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell">
                     <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold
-                      ${r.serviceType === 'WITH_DRIVER' ? 'border-[#49e2d2]/30 bg-[#49e2d2]/10 text-[#49e2d2]' : 'border-[#1e5670] text-[#7ea8bc]'}`}>
+                      ${r.serviceType === 'WITH_DRIVER' ? 'border-[#ff9f5a]/30 bg-[#ff9f5a]/10 text-[#ff9f5a]' : 'border-[#3a3a3a] text-[#aaaaaa]'}`}>
                       {r.serviceType === 'WITH_DRIVER' ? '🧑✈️ Driver' : '🚗 Car Only'}
                     </span>
                   </td>
                   <td className="px-4 py-3 hidden lg:table-cell">
-                    <p className="text-[#c8f2ff]">{new Date(r.startDate).toLocaleDateString()}</p>
-                    <p className="text-[10px] text-[#7ea8bc]">→ {new Date(r.endDate).toLocaleDateString()}</p>
+                    <p className="text-[#eeeeee]">{new Date(r.startDate).toLocaleDateString()}</p>
+                    <p className="text-[10px] text-[#aaaaaa]">→ {new Date(r.endDate).toLocaleDateString()}</p>
                   </td>
-                  <td className="px-4 py-3 font-semibold text-[#c8f2ff] hidden md:table-cell">${Number(r.totalPrice ?? 0).toFixed(2)}</td>
+                  <td className="px-4 py-3 font-semibold text-[#eeeeee] hidden md:table-cell">${Number(r.totalPrice ?? 0).toFixed(2)}</td>
                   <td className="px-4 py-3">
                     <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase ${STATUS_STYLE[r.status] ?? ''}`}>{r.status}</span>
                   </td>
                   <td className="px-4 py-3 text-right">
                     <select value={r.status} disabled={updating === r.id} onChange={e => updateStatus(r.id, e.target.value)}
-                      className="rounded-lg border border-[#1e5670] bg-[#051a28] px-2 py-1 text-[10px] uppercase text-[#c8f2ff] outline-none disabled:opacity-50">
+                      className="rounded-lg border border-[#3a3a3a] bg-[#1c1c1c] px-2 py-1 text-[10px] uppercase text-[#eeeeee] outline-none disabled:opacity-50">
                       {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </td>

@@ -21,7 +21,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!mounted) return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#2ec5f5] border-t-transparent" />
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#fe7f32] border-t-transparent" />
     </div>
   );
 
@@ -33,15 +33,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       <div className="flex-1 overflow-x-hidden px-3 py-4 sm:px-5">
         {/* Mobile topbar */}
-        <div className="mb-4 flex items-center justify-between rounded-2xl border border-[#1f5972] bg-[#051a28]/80 p-3 xl:hidden">
+        <div className="mb-4 flex items-center justify-between rounded-2xl border border-[#1f5972] bg-[#1c1c1c]/80 p-3 xl:hidden">
           <button
             onClick={() => setSidebar(true)}
-            className="glass-panel rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-widest text-[#c8f2ff]"
+            className="glass-panel rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-widest text-[#eeeeee]"
           >
             Menu
           </button>
-          <p className="text-sm font-black uppercase tracking-widest text-[#e8fbff]">Admin</p>
-          <span className="text-xs text-[#4a8fa8]">Panel</span>
+          <p className="text-sm font-black uppercase tracking-widest text-[#f5f5f5]">Admin</p>
+          <span className="text-xs text-[#888888]">Panel</span>
         </div>
 
         {children}
