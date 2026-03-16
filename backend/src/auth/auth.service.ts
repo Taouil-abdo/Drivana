@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { User, Role } from '../entities/user.entity';
+import { Driver, DriverStatus } from '../entities/driver.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 
@@ -12,6 +13,7 @@ import { LoginDto } from './dto/login.dto';
 export class AuthService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Driver) private driverRepository: Repository<Driver>,
     private jwt: JwtService,
     private config: ConfigService,
   ) {}
@@ -74,5 +76,21 @@ export class AuthService {
       expiresIn: this.config.get('JWT_EXPIRES_IN'),
       secret: this.config.get('JWT_SECRET'),
     });
+  }
+
+  async becomeDriver(userId: string, dto: { licenseNumber: string; experienceYears: number; photo?: string }) {
+    const existing = await this.driverRepository.findOne({ where: { user: { id: userId } } });
+    if (existing) throw new ConflictException('Driver profile already exists');
+
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const driver = this.driverRepository.create({
+      user,
+      licenseNumber: dto.licenseNumber,
+      experienceYears: dto.experienceYears,
+      photo: dto.photo,
+      status: DriverStatus.PENDING,
+    });
+    await this.driverRepository.save(driver);
+    return { message: 'Driver application submitted. Awaiting admin approval.' };
   }
 }

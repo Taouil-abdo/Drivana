@@ -10,6 +10,11 @@ export enum ReservationStatus {
   COMPLETED = 'COMPLETED',
 }
 
+export enum ServiceType {
+  CAR_ONLY   = 'CAR_ONLY',
+  WITH_DRIVER = 'WITH_DRIVER',
+}
+
 @Entity('reservations')
 export class Reservation {
   @PrimaryGeneratedColumn('uuid')
@@ -23,6 +28,13 @@ export class Reservation {
 
   @ManyToOne(() => Driver, { nullable: true })
   driver: Driver;
+
+  @Column({
+    type: 'enum',
+    enum: ServiceType,
+    default: ServiceType.CAR_ONLY,
+  })
+  serviceType: ServiceType;
 
   @Column({ type: 'date' })
   startDate: Date;
