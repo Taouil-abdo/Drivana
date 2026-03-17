@@ -23,6 +23,12 @@ export class Driver {
   @Column({ type: 'int' })
   experienceYears: number;
 
+  @Column({ nullable: true })
+  licenseDocumentUrl: string | null;
+
+  @Column({ nullable: true })
+  insuranceDocumentUrl: string | null;
+
   @Column({
     type: 'enum',
     enum: DriverStatus,

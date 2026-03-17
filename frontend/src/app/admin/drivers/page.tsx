@@ -24,9 +24,17 @@ export default function AdminDrivers() {
   const [search,   setSearch]   = useState('');
   const [confirm,  setConfirm]  = useState<string | null>(null);
   const [showAdd,  setShowAdd]  = useState(false);
-  const [addForm,  setAddForm]  = useState({ userId: '', licenseNumber: '', experienceYears: '' });
+  const [addForm,  setAddForm]  = useState({
+    userId: '',
+    licenseNumber: '',
+    experienceYears: '',
+    licenseDocumentUrl: '',
+    insuranceDocumentUrl: '',
+    photo: '',
+  });
   const [addErr,   setAddErr]   = useState('');
   const [adding,   setAdding]   = useState(false);
+  const [viewer,   setViewer]   = useState<{ type: 'photo' | 'license' | 'insurance'; url: string } | null>(null);
 
   useEffect(() => { fetchAll(); }, []);
 
@@ -68,9 +76,19 @@ export default function AdminDrivers() {
         userId: addForm.userId,
         licenseNumber: addForm.licenseNumber,
         experienceYears: Number(addForm.experienceYears),
+        licenseDocumentUrl: addForm.licenseDocumentUrl || undefined,
+        insuranceDocumentUrl: addForm.insuranceDocumentUrl || undefined,
+        photo: addForm.photo || undefined,
       });
       setShowAdd(false);
-      setAddForm({ userId: '', licenseNumber: '', experienceYears: '' });
+      setAddForm({
+        userId: '',
+        licenseNumber: '',
+        experienceYears: '',
+        licenseDocumentUrl: '',
+        insuranceDocumentUrl: '',
+        photo: '',
+      });
       toast('Driver added successfully', 'success');
       await fetchAll();
     } catch (e: any) {
@@ -138,6 +156,7 @@ export default function AdminDrivers() {
                 <th className="px-4 py-3 text-left hidden sm:table-cell">License</th>
                 <th className="px-4 py-3 text-left hidden md:table-cell">Exp.</th>
                 <th className="px-4 py-3 text-left hidden md:table-cell">Rating</th>
+                <th className="px-4 py-3 text-left hidden lg:table-cell">Documents</th>
                 <th className="px-4 py-3 text-left">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
@@ -154,6 +173,40 @@ export default function AdminDrivers() {
                   <td className="px-4 py-3 text-[#c8f2ff] hidden sm:table-cell">{d.licenseNumber}</td>
                   <td className="px-4 py-3 text-[#c8f2ff] hidden md:table-cell">{d.experienceYears} yrs</td>
                   <td className="px-4 py-3 text-[#c8f2ff] hidden md:table-cell">{d.rating ?? 0}</td>
+                  <td className="px-4 py-3 hidden lg:table-cell">
+                    <div className="flex flex-wrap gap-1">
+                      {d.photo && (
+                        <button
+                          type="button"
+                          onClick={() => setViewer({ type: 'photo', url: d.photo })}
+                          className="rounded-full border border-[#2ec5f5]/40 bg-[#2ec5f5]/10 px-2 py-0.5 text-[9px] uppercase text-[#2ec5f5] hover:bg-[#2ec5f5]/20"
+                        >
+                          Photo
+                        </button>
+                      )}
+                      {d.licenseDocumentUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setViewer({ type: 'license', url: d.licenseDocumentUrl })}
+                          className="rounded-full border border-[#f3b85a]/40 bg-[#f3b85a]/10 px-2 py-0.5 text-[9px] uppercase text-[#f3b85a] hover:bg-[#f3b85a]/20"
+                        >
+                          License
+                        </button>
+                      )}
+                      {d.insuranceDocumentUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setViewer({ type: 'insurance', url: d.insuranceDocumentUrl })}
+                          className="rounded-full border border-[#a78bfa]/40 bg-[#a78bfa]/10 px-2 py-0.5 text-[9px] uppercase text-[#a78bfa] hover:bg-[#a78bfa]/20"
+                        >
+                          Insurance
+                        </button>
+                      )}
+                      {!d.photo && !d.licenseDocumentUrl && !d.insuranceDocumentUrl && (
+                        <span className="text-[10px] text-[#4a8fa8]">No docs</span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-4 py-3">
                     <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase ${STATUS_STYLE[d.status] ?? ''}`}>
                       {d.status}
@@ -210,6 +263,33 @@ export default function AdminDrivers() {
                   placeholder="e.g. 5"
                   className="w-full rounded-xl border border-[#1e5670] bg-[#051a28] px-3 py-2.5 text-xs text-[#c8f2ff] placeholder-[#4a8fa8] outline-none focus:border-[#2ec5f5]" />
               </div>
+              <div>
+                <label className="mb-1 block text-[10px] uppercase tracking-widest text-[#4a8fa8]">License Document URL</label>
+                <input
+                  value={addForm.licenseDocumentUrl}
+                  onChange={e => setAddForm(f => ({ ...f, licenseDocumentUrl: e.target.value }))}
+                  placeholder="https://..."
+                  className="w-full rounded-xl border border-[#1e5670] bg-[#051a28] px-3 py-2.5 text-xs text-[#c8f2ff] placeholder-[#4a8fa8] outline-none focus:border-[#2ec5f5]"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px] uppercase tracking-widest text-[#4a8fa8]">Insurance Document URL</label>
+                <input
+                  value={addForm.insuranceDocumentUrl}
+                  onChange={e => setAddForm(f => ({ ...f, insuranceDocumentUrl: e.target.value }))}
+                  placeholder="https://..."
+                  className="w-full rounded-xl border border-[#1e5670] bg-[#051a28] px-3 py-2.5 text-xs text-[#c8f2ff] placeholder-[#4a8fa8] outline-none focus:border-[#2ec5f5]"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px] uppercase tracking-widest text-[#4a8fa8]">Profile Photo URL</label>
+                <input
+                  value={addForm.photo}
+                  onChange={e => setAddForm(f => ({ ...f, photo: e.target.value }))}
+                  placeholder="https://..."
+                  className="w-full rounded-xl border border-[#1e5670] bg-[#051a28] px-3 py-2.5 text-xs text-[#c8f2ff] placeholder-[#4a8fa8] outline-none focus:border-[#2ec5f5]"
+                />
+              </div>
               {addErr && <p className="text-[11px] text-[#f87171]">{addErr}</p>}
               <div className="flex gap-3 pt-2">
                 <button onClick={() => setShowAdd(false)} className="flex-1 rounded-xl border border-[#1e5670] py-2.5 text-xs font-bold uppercase tracking-wider text-[#7ea8bc] hover:text-[#c8f2ff] transition">Cancel</button>
@@ -217,6 +297,40 @@ export default function AdminDrivers() {
                   {adding ? 'Adding...' : 'Add Driver'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {viewer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="glass-panel w-full max-w-2xl rounded-2xl p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-sm font-black uppercase tracking-widest text-[#e8fbff]">
+                {viewer.type === 'photo' ? 'Driver Photo' : viewer.type === 'license' ? 'License Document' : 'Insurance Document'}
+              </h2>
+              <button onClick={() => setViewer(null)} className="text-[#4a8fa8] hover:text-[#c8f2ff]">✕</button>
+            </div>
+            <div className="max-h-[70vh] overflow-auto rounded-xl border border-[#1e5670] bg-[#051a28] p-3">
+              {/\.(png|jpe?g|webp|gif)$/i.test(viewer.url) ? (
+                <img
+                  src={viewer.url}
+                  alt={viewer.type}
+                  className="mx-auto max-h-[60vh] w-auto rounded-lg object-contain"
+                />
+              ) : (
+                <div className="space-y-3 text-center">
+                  <p className="text-sm text-[#c8f2ff]">Preview not available. Open the document in a new tab.</p>
+                  <a
+                    href={viewer.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center rounded-xl border border-[#2ec5f5]/40 bg-[#2ec5f5]/15 px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#2ec5f5] hover:bg-[#2ec5f5]/25"
+                  >
+                    Open Document
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>

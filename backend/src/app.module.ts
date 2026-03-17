@@ -7,6 +7,7 @@ import { Driver } from './entities/driver.entity';
 import { Reservation } from './entities/reservation.entity';
 import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
+import { DriverModule } from './driver/driver.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { AdminModule } from './admin/admin.module';
     }),
     AuthModule,
     AdminModule,
+    DriverModule,
   ],
 })
 export class AppModule {}

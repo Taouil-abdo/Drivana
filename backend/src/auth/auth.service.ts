@@ -78,7 +78,16 @@ export class AuthService {
     });
   }
 
-  async becomeDriver(userId: string, dto: { licenseNumber: string; experienceYears: number; photo?: string }) {
+  async becomeDriver(
+    userId: string,
+    dto: {
+      licenseNumber: string;
+      experienceYears: number;
+      photo?: string;
+      licenseDocumentUrl?: string;
+      insuranceDocumentUrl?: string;
+    },
+  ) {
     const existing = await this.driverRepository.findOne({ where: { user: { id: userId } } });
     if (existing) throw new ConflictException('Driver profile already exists');
 
@@ -88,6 +97,8 @@ export class AuthService {
       licenseNumber: dto.licenseNumber,
       experienceYears: dto.experienceYears,
       photo: dto.photo,
+      licenseDocumentUrl: dto.licenseDocumentUrl,
+      insuranceDocumentUrl: dto.insuranceDocumentUrl,
       status: DriverStatus.PENDING,
     });
     await this.driverRepository.save(driver);

@@ -88,33 +88,55 @@ export class AdminService {
   }
 
   async approveDriver(id: string) {
-    const driver = await this.driverRepository.findOne({ where: { id } });
+    const driver = await this.driverRepository.findOne({ where: { id }, relations: ['user'] });
     if (!driver) throw new NotFoundException('Driver not found');
     driver.status = DriverStatus.APPROVED;
-    return this.driverRepository.save(driver);
+    const saved = await this.driverRepository.save(driver);
+    if (driver.user) {
+      driver.user.role = Role.DRIVER;
+      await this.userRepository.save(driver.user);
+    }
+    return saved;
   }
 
   async rejectDriver(id: string) {
-    const driver = await this.driverRepository.findOne({ where: { id } });
+    const driver = await this.driverRepository.findOne({ where: { id }, relations: ['user'] });
     if (!driver) throw new NotFoundException('Driver not found');
     driver.status = DriverStatus.REJECTED;
-    return this.driverRepository.save(driver);
+    const saved = await this.driverRepository.save(driver);
+    if (driver.user) {
+      driver.user.role = Role.CLIENT;
+      await this.userRepository.save(driver.user);
+    }
+    return saved;
   }
 
   async suspendDriver(id: string) {
-    const driver = await this.driverRepository.findOne({ where: { id } });
+    const driver = await this.driverRepository.findOne({ where: { id }, relations: ['user'] });
     if (!driver) throw new NotFoundException('Driver not found');
     driver.status = DriverStatus.SUSPENDED;
-    return this.driverRepository.save(driver);
+    const saved = await this.driverRepository.save(driver);
+    // Keep role as DRIVER so they can access driver panel (but marked suspended).
+    return saved;
   }
 
-  async createDriver(data: { userId: string; licenseNumber: string; experienceYears: number }) {
+  async createDriver(data: {
+    userId: string;
+    licenseNumber: string;
+    experienceYears: number;
+    licenseDocumentUrl?: string;
+    insuranceDocumentUrl?: string;
+    photo?: string;
+  }) {
     const user = await this.userRepository.findOne({ where: { id: data.userId } });
     if (!user) throw new NotFoundException('User not found');
     const driver = this.driverRepository.create({
       user,
       licenseNumber: data.licenseNumber,
       experienceYears: data.experienceYears,
+      licenseDocumentUrl: data.licenseDocumentUrl,
+      insuranceDocumentUrl: data.insuranceDocumentUrl,
+      photo: data.photo,
       status: DriverStatus.APPROVED,
     });
     const saved = await this.driverRepository.save(driver);
