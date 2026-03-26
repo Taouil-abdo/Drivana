@@ -28,7 +28,11 @@ export default function RegisterPage() {
     try {
       const { data } = await apiClient.post('/auth/register', formData);
       setAuth(data.user, data.token);
-      router.push('/dashboard');
+      if(data.user.role === 'DRIVER'){
+        router.push('/driver/dashboard');
+      }else{
+        router.push('/client/dashboard');
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed');
     } finally {
@@ -50,24 +54,24 @@ export default function RegisterPage() {
                 backgroundSize: 'cover',
               }}
             >
-              <p className="text-xs uppercase tracking-[0.22em] text-[#7ab5cb]">Create Account</p>
-              <h1 className="mt-3 text-3xl font-black uppercase leading-[0.9] tracking-tight text-[#e8fbff] sm:text-5xl">
+              <p className="text-xs uppercase tracking-[0.22em] text-[#aaaaaa]">Create Account</p>
+              <h1 className="mt-3 text-3xl font-black uppercase leading-[0.9] tracking-tight text-[#f5f5f5] sm:text-5xl">
                 Join Drivana
               </h1>
-              <p className="mt-4 max-w-lg text-sm leading-6 text-[#8eb5c7] sm:text-base">
+              <p className="mt-4 max-w-lg text-sm leading-6 text-[#bbbbbb] sm:text-base">
                 Build your profile in seconds and unlock instant access to premium vehicles, driver services, and trip management.
               </p>
-              <div className="mt-7 grid gap-3 text-[11px] uppercase tracking-[0.16em] text-[#93c1d4]">
-                <span className="rounded-full border border-[#2f7898] px-3 py-1 text-center">Fast Registration</span>
-                <span className="rounded-full border border-[#2f7898] px-3 py-1 text-center">Secure Authentication</span>
-                <span className="rounded-full border border-[#2f7898] px-3 py-1 text-center">Client and Driver Roles</span>
+              <div className="mt-7 grid gap-3 text-[11px] uppercase tracking-[0.16em] text-[#aaaaaa]">
+                <span className="rounded-full border border-[#444444] px-3 py-1 text-center">Fast Registration</span>
+                <span className="rounded-full border border-[#444444] px-3 py-1 text-center">Secure Authentication</span>
+                <span className="rounded-full border border-[#444444] px-3 py-1 text-center">Client and Driver Roles</span>
               </div>
             </article>
 
             <article className="glass-panel rounded-2xl p-5 sm:p-6">
               <div className="mb-5 flex items-center justify-between border-b border-[#1a5069]/70 pb-4">
-                <h2 className="text-xl font-bold uppercase tracking-[0.08em] text-[#ddf7ff]">Register</h2>
-                <Link href="/" className="text-xs uppercase tracking-[0.14em] text-[#85b1c5] hover:text-[#d6f5ff]">
+                <h2 className="text-xl font-bold uppercase tracking-[0.08em] text-[#eeeeee]">Register</h2>
+                <Link href="/" className="text-xs uppercase tracking-[0.14em] text-[#aaaaaa] hover:text-[#eeeeee]">
                   Home
                 </Link>
               </div>
@@ -81,22 +85,22 @@ export default function RegisterPage() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="mb-1 block text-[11px] uppercase tracking-[0.15em] text-[#82afc2]">First Name</label>
+                    <label className="mb-1 block text-[11px] uppercase tracking-[0.15em] text-[#aaaaaa]">First Name</label>
                     <input
                       type="text"
                       required
-                      className="w-full rounded-lg border border-[#255f7a] bg-[#071826] px-4 py-2.5 text-sm text-[#d8f6ff] outline-none placeholder:text-[#62889c] focus:border-[#3ba4cc]"
+                      className="w-full rounded-lg border border-[#444444] bg-[#1a1a1a] px-4 py-2.5 text-sm text-[#eeeeee] outline-none placeholder:text-[#777777] focus:border-[#fe7f32]"
                       value={formData.firstName}
                       onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                     />
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-[11px] uppercase tracking-[0.15em] text-[#82afc2]">Last Name</label>
+                    <label className="mb-1 block text-[11px] uppercase tracking-[0.15em] text-[#aaaaaa]">Last Name</label>
                     <input
                       type="text"
                       required
-                      className="w-full rounded-lg border border-[#255f7a] bg-[#071826] px-4 py-2.5 text-sm text-[#d8f6ff] outline-none placeholder:text-[#62889c] focus:border-[#3ba4cc]"
+                      className="w-full rounded-lg border border-[#444444] bg-[#1a1a1a] px-4 py-2.5 text-sm text-[#eeeeee] outline-none placeholder:text-[#777777] focus:border-[#fe7f32]"
                       value={formData.lastName}
                       onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                     />
@@ -104,11 +108,11 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-[11px] uppercase tracking-[0.15em] text-[#82afc2]">Email</label>
+                  <label className="mb-1 block text-[11px] uppercase tracking-[0.15em] text-[#aaaaaa]">Email</label>
                   <input
                     type="email"
                     required
-                    className="w-full rounded-lg border border-[#255f7a] bg-[#071826] px-4 py-2.5 text-sm text-[#d8f6ff] outline-none placeholder:text-[#62889c] focus:border-[#3ba4cc]"
+                    className="w-full rounded-lg border border-[#444444] bg-[#1a1a1a] px-4 py-2.5 text-sm text-[#eeeeee] outline-none placeholder:text-[#777777] focus:border-[#fe7f32]"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   />
@@ -116,19 +120,19 @@ export default function RegisterPage() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="mb-1 block text-[11px] uppercase tracking-[0.15em] text-[#82afc2]">Phone</label>
+                    <label className="mb-1 block text-[11px] uppercase tracking-[0.15em] text-[#aaaaaa]">Phone</label>
                     <input
                       type="tel"
-                      className="w-full rounded-lg border border-[#255f7a] bg-[#071826] px-4 py-2.5 text-sm text-[#d8f6ff] outline-none placeholder:text-[#62889c] focus:border-[#3ba4cc]"
+                      className="w-full rounded-lg border border-[#444444] bg-[#1a1a1a] px-4 py-2.5 text-sm text-[#eeeeee] outline-none placeholder:text-[#777777] focus:border-[#fe7f32]"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     />
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-[11px] uppercase tracking-[0.15em] text-[#82afc2]">Register As</label>
+                    <label className="mb-1 block text-[11px] uppercase tracking-[0.15em] text-[#aaaaaa]">Register As</label>
                     <select
-                      className="w-full rounded-lg border border-[#255f7a] bg-[#071826] px-4 py-2.5 text-sm text-[#d8f6ff] outline-none focus:border-[#3ba4cc]"
+                      className="w-full rounded-lg border border-[#444444] bg-[#1a1a1a] px-4 py-2.5 text-sm text-[#eeeeee] outline-none focus:border-[#fe7f32]"
                       value={formData.role}
                       onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                     >
@@ -139,12 +143,12 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-[11px] uppercase tracking-[0.15em] text-[#82afc2]">Password</label>
+                  <label className="mb-1 block text-[11px] uppercase tracking-[0.15em] text-[#aaaaaa]">Password</label>
                   <input
                     type="password"
                     required
                     minLength={6}
-                    className="w-full rounded-lg border border-[#255f7a] bg-[#071826] px-4 py-2.5 text-sm text-[#d8f6ff] outline-none placeholder:text-[#62889c] focus:border-[#3ba4cc]"
+                    className="w-full rounded-lg border border-[#444444] bg-[#1a1a1a] px-4 py-2.5 text-sm text-[#eeeeee] outline-none placeholder:text-[#777777] focus:border-[#fe7f32]"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   />
@@ -153,13 +157,13 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full rounded-lg bg-[#2ec5f5] py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[#042333] transition hover:bg-[#59d9ff] disabled:cursor-not-allowed disabled:bg-[#2f6172] disabled:text-[#8db4c6]"
+                  className="w-full rounded-lg bg-[#fe7f32] py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[#111111] transition hover:bg-[#59d9ff] disabled:cursor-not-allowed disabled:bg-[#555555] disabled:text-[#8db4c6]"
                 >
                   {loading ? 'Loading...' : 'Register'}
                 </button>
               </form>
 
-              <p className="mt-5 text-center text-sm text-[#8bb2c4]">
+              <p className="mt-5 text-center text-sm text-[#bbbbbb]">
                 Already have an account?{' '}
                 <Link href="/login" className="text-[#c9f3ff] underline underline-offset-4 hover:text-white">
                   Login

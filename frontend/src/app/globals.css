@@ -2,15 +2,52 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Dark theme (default) ─────────────────────────────── */
 :root {
-  --bg-deep: #030b14;
-  --bg-mid: #071826;
-  --bg-soft: #0a2331;
-  --line: #15465e;
-  --text-main: #d7f5ff;
-  --text-soft: #81a8bd;
-  --accent: #2ec5f5;
-  --accent-2: #49e2d2;
+  --bg-deep:      #111111;
+  --bg-mid:       #1a1a1a;
+  --bg-soft:      #222222;
+  --bg-card:      rgba(40, 40, 40, 0.52);
+  --bg-card-solid:#1e1e1e;
+  --line:         rgba(254, 127, 50, 0.25);
+  --line-soft:    #3a3a3a;
+  --text-main:    #eeeeee;
+  --text-soft:    #bbbbbb;
+  --text-muted:   #888888;
+  --accent:       #fe7f32;
+  --accent-2:     #ff9f5a;
+  --sidebar-bg:   linear-gradient(180deg, #111111, #1a1a1a, #111111);
+  --sidebar-border: rgba(254, 127, 50, 0.3);
+  --glass-bg:     linear-gradient(180deg, rgba(40,40,40,0.52), rgba(20,20,20,0.75));
+  --glass-shadow: inset 0 1px 0 rgba(254,127,50,0.08), 0 14px 40px rgba(0,0,0,0.45);
+  --body-bg:
+    radial-gradient(1200px 520px at 10% -10%, #2a1a0f 0%, transparent 50%),
+    radial-gradient(900px 420px at 95% 10%, #1f1208 0%, transparent 60%),
+    linear-gradient(180deg, #1a1a1a 0%, #141414 40%, #111111 100%);
+}
+
+/* ── Light theme ──────────────────────────────────────── */
+.light {
+  --bg-deep:      #f5f5f5;
+  --bg-mid:       #eeeeee;
+  --bg-soft:      #e5e5e5;
+  --bg-card:      rgba(255, 255, 255, 0.85);
+  --bg-card-solid:#ffffff;
+  --line:         rgba(254, 127, 50, 0.3);
+  --line-soft:    #dddddd;
+  --text-main:    #222222;
+  --text-soft:    #555555;
+  --text-muted:   #888888;
+  --accent:       #fe7f32;
+  --accent-2:     #ff9f5a;
+  --sidebar-bg:   linear-gradient(180deg, #ffffff, #f5f5f5, #eeeeee);
+  --sidebar-border: rgba(254, 127, 50, 0.25);
+  --glass-bg:     linear-gradient(180deg, rgba(255,255,255,0.9), rgba(238,238,238,0.95));
+  --glass-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 24px rgba(0,0,0,0.08);
+  --body-bg:
+    radial-gradient(1200px 520px at 10% -10%, #ffe0cc 0%, transparent 50%),
+    radial-gradient(900px 420px at 95% 10%, #ffd5b8 0%, transparent 60%),
+    linear-gradient(180deg, #eeeeee 0%, #f5f5f5 40%, #fafafa 100%);
 }
 
 * {
@@ -21,17 +58,22 @@
 
 body {
   font-family: "Trebuchet MS", "Franklin Gothic Medium", "Arial Narrow", sans-serif;
-  background:
-    radial-gradient(1200px 520px at 10% -10%, #0f3a53 0%, transparent 50%),
-    radial-gradient(900px 420px at 95% 10%, #0b2a40 0%, transparent 60%),
-    linear-gradient(180deg, var(--bg-mid) 0%, var(--bg-deep) 40%, #02080f 100%);
+  background: var(--body-bg);
   color: var(--text-main);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-.scan-lines {
-  position: relative;
+/* ── Glass panel ─────────────────────────────────────── */
+.glass-panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--line);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(3px);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* ── Scan lines (dark only) ──────────────────────────── */
+.scan-lines { position: relative; }
 .scan-lines::before {
   content: "";
   position: absolute;
@@ -39,73 +81,107 @@ body {
   pointer-events: none;
   background: repeating-linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 0.02) 0,
-    rgba(255, 255, 255, 0.02) 1px,
+    rgba(255,255,255,0.02) 0,
+    rgba(255,255,255,0.02) 1px,
     transparent 2px,
     transparent 4px
   );
 }
+.light .scan-lines::before { display: none; }
 
-.glass-panel {
-  background: linear-gradient(180deg, rgba(16, 49, 69, 0.52), rgba(7, 23, 34, 0.75));
-  border: 1px solid rgba(56, 121, 149, 0.45);
-  box-shadow: inset 0 1px 0 rgba(147, 216, 255, 0.08), 0 14px 40px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(3px);
-}
-
-.pulse-ring {
-  animation: pulse-ring 2.8s ease-in-out infinite;
-}
-
+/* ── Animations ──────────────────────────────────────── */
+.pulse-ring { animation: pulse-ring 2.8s ease-in-out infinite; }
 @keyframes pulse-ring {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(46, 197, 245, 0.35);
-  }
-  50% {
-    box-shadow: 0 0 0 12px rgba(46, 197, 245, 0);
-  }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(254,127,50,0.35); }
+  50%       { box-shadow: 0 0 0 12px rgba(254,127,50,0); }
 }
 
-.fade-rise {
-  animation: fade-rise 600ms ease both;
-}
-
+.fade-rise { animation: fade-rise 600ms ease both; }
 @keyframes fade-rise {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.slide-in {
-  animation: slide-in 420ms ease both;
-}
-
+.slide-in { animation: slide-in 420ms ease both; }
 @keyframes slide-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.stat-flash {
-  animation: stat-flash 550ms ease;
-}
-
+.stat-flash { animation: stat-flash 550ms ease; }
 @keyframes stat-flash {
-  0% {
-    box-shadow: 0 0 0 0 rgba(46, 197, 245, 0.45);
-  }
-  100% {
-    box-shadow: 0 0 0 12px rgba(46, 197, 245, 0);
-  }
+  0%   { box-shadow: 0 0 0 0 rgba(254,127,50,0.45); }
+  100% { box-shadow: 0 0 0 12px rgba(254,127,50,0); }
 }
+
+/* ── Theme-aware utility overrides ───────────────────── */
+
+/* headings use accent in light mode */
+.light h1, .light h2, .light h3 {
+  color: var(--text-main);
+}
+
+/* page title accent */
+.page-title {
+  color: var(--text-main);
+}
+.light .page-title {
+  color: var(--accent);
+}
+
+/* section label (small uppercase above title) */
+.section-label {
+  color: var(--text-muted);
+}
+.light .section-label {
+  color: var(--accent);
+}
+
+/* subtitle / description text */
+.subtitle {
+  color: var(--text-soft);
+}
+
+/* sidebar */
+.theme-sidebar {
+  background: var(--sidebar-bg);
+  border-color: var(--sidebar-border);
+  transition: background 0.3s ease;
+}
+
+/* In light mode, glass-panel section titles use dark text */
+.light .glass-panel p,
+.light .glass-panel span {
+  color: inherit;
+}
+
+/* KPI values in light mode */
+.light .text-\[#f0f0f0\],
+.light .text-\[#eeeeee\],
+.light .text-\[#f5f5f5\] {
+  color: var(--text-main) !important;
+}
+
+/* Muted labels in light mode */
+.light .text-\[#888888\],
+.light .text-\[#aaaaaa\],
+.light .text-\[#7eaec4\],
+.light .text-\[#79afc5\] {
+  color: var(--text-muted) !important;
+}
+
+/* cards in light mode get white bg */
+.light .glass-panel {
+  background: var(--glass-bg);
+  border-color: var(--line);
+}
+
+/* table rows hover */
+.light .hover\:bg-\[\#222222\]\/60:hover {
+  background-color: rgba(200, 225, 240, 0.5) !important;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line-soft); border-radius: 99px; }

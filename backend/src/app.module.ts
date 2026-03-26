@@ -5,9 +5,11 @@ import { User } from './entities/user.entity';
 import { Vehicle } from './entities/vehicle.entity';
 import { Driver } from './entities/driver.entity';
 import { Reservation } from './entities/reservation.entity';
+import { Review } from './entities/review.entity';
 import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
 import { DriverModule } from './driver/driver.module';
+import { ClientModule } from './client/client.module';
 
 @Module({
   imports: [
@@ -15,12 +17,13 @@ import { DriverModule } from './driver/driver.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/drivana',
-      entities: [User, Vehicle, Driver, Reservation],
-      synchronize: true,
+      entities: [User, Vehicle, Driver, Reservation, Review],
+      synchronize: process.env.NODE_ENV !== 'production',
     }),
     AuthModule,
     AdminModule,
     DriverModule,
+    ClientModule,
   ],
 })
 export class AppModule {}

@@ -6,7 +6,7 @@ import ToastContainer from '@/components/admin/Toast';
 import { useToast } from '@/lib/useToast';
 
 const STATUS_STYLE: Record<string, string> = {
-  APPROVED:  'bg-[#42d99a]/20 text-[#42d99a] border-[#42d99a]/30',
+  APPROVED:  'bg-[#fe7f32]/20 text-[#fe7f32] border-[#fe7f32]/30',
   PENDING:   'bg-[#f3b85a]/20 text-[#f3b85a] border-[#f3b85a]/30',
   REJECTED:  'bg-[#f87171]/20 text-[#f87171] border-[#f87171]/30',
   SUSPENDED: 'bg-[#a78bfa]/20 text-[#a78bfa] border-[#a78bfa]/30',
@@ -57,14 +57,14 @@ export default function DriverProfile() {
 
       {/* Header */}
       <section className="glass-panel scan-lines fade-rise mb-4 rounded-2xl p-4 sm:p-5">
-        <p className="text-[10px] uppercase tracking-[0.24em] text-[#79afc5]">Driver Console</p>
-        <h1 className="mt-1 text-2xl font-black uppercase leading-none tracking-tight text-[#e8fbff] sm:text-3xl">My Profile</h1>
-        <p className="mt-1 text-sm text-[#9cc1d1]">Your driver information and performance overview.</p>
+        <p className="section-label text-[10px] uppercase tracking-[0.24em]">Driver Console</p>
+        <h1 className="page-title mt-1 text-2xl font-black uppercase leading-none tracking-tight sm:text-3xl">My Profile</h1>
+        <p className="subtitle mt-1 text-sm">Your driver information and performance overview.</p>
       </section>
 
       {loading ? (
         <div className="glass-panel rounded-2xl p-10 text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#2ec5f5] border-t-transparent" />
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#fe7f32] border-t-transparent" />
         </div>
       ) : (
         <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
@@ -75,13 +75,13 @@ export default function DriverProfile() {
 
             {/* Avatar + name */}
             <div className="flex items-center gap-4 mb-5">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 border-[#2ec5f5]/50 bg-[#0b2433] text-xl font-black text-[#c8f2ff]">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 border-[#fe7f32]/50 bg-[#0b2433] text-xl font-black text-[#eeeeee]">
                 {profile?.user?.firstName?.[0]}{profile?.user?.lastName?.[0]}
               </div>
               <div>
-                <p className="text-lg font-black text-[#e4f9ff]">{profile?.user?.firstName} {profile?.user?.lastName}</p>
-                <p className="text-xs text-[#7ea8bc]">{profile?.user?.email}</p>
-                {profile?.user?.phone && <p className="text-xs text-[#7ea8bc]">{profile?.user?.phone}</p>}
+                <p className="text-lg font-black text-[#f0f0f0]">{profile?.user?.firstName} {profile?.user?.lastName}</p>
+                <p className="text-xs text-[#aaaaaa]">{profile?.user?.email}</p>
+                {profile?.user?.phone && <p className="text-xs text-[#aaaaaa]">{profile?.user?.phone}</p>}
               </div>
             </div>
 
@@ -92,14 +92,14 @@ export default function DriverProfile() {
                 { label: 'Experience',        value: `${profile?.experienceYears} years` },
                 { label: 'Member Since',      value: new Date(profile?.createdAt).toLocaleDateString() },
               ].map(row => (
-                <div key={row.label} className="flex items-center justify-between rounded-xl border border-[#1e5670] bg-[#051a28]/80 px-3 py-2.5">
+                <div key={row.label} className="flex items-center justify-between rounded-xl border border-[#3a3a3a] bg-[#1c1c1c]/80 px-3 py-2.5">
                   <p className="text-[10px] uppercase tracking-widest text-[#7eaec4]">{row.label}</p>
-                  <p className="text-xs font-semibold text-[#e4f9ff]">{row.value}</p>
+                  <p className="text-xs font-semibold text-[#f0f0f0]">{row.value}</p>
                 </div>
               ))}
 
               {/* Status */}
-              <div className="flex items-center justify-between rounded-xl border border-[#1e5670] bg-[#051a28]/80 px-3 py-2.5">
+              <div className="flex items-center justify-between rounded-xl border border-[#3a3a3a] bg-[#1c1c1c]/80 px-3 py-2.5">
                 <p className="text-[10px] uppercase tracking-widest text-[#7eaec4]">Account Status</p>
                 <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase ${STATUS_STYLE[profile?.status] ?? ''}`}>
                   {profile?.status}
@@ -107,14 +107,14 @@ export default function DriverProfile() {
               </div>
 
               {/* Availability toggle */}
-              <div className="flex items-center justify-between rounded-xl border border-[#1e5670] bg-[#051a28]/80 px-3 py-2.5">
+              <div className="flex items-center justify-between rounded-xl border border-[#3a3a3a] bg-[#1c1c1c]/80 px-3 py-2.5">
                 <p className="text-[10px] uppercase tracking-widest text-[#7eaec4]">Availability</p>
                 <button
                   onClick={toggleAvailability}
                   disabled={toggling || profile?.status !== 'APPROVED'}
                   className={`rounded-lg border px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition disabled:opacity-40
                     ${profile?.isAvailable
-                      ? 'border-[#42d99a]/40 bg-[#42d99a]/10 text-[#42d99a] hover:bg-[#42d99a]/20'
+                      ? 'border-[#fe7f32]/40 bg-[#fe7f32]/10 text-[#fe7f32] hover:bg-[#fe7f32]/20'
                       : 'border-[#f87171]/40 bg-[#f87171]/10 text-[#f87171] hover:bg-[#f87171]/20'}`}
                 >
                   {toggling ? '...' : profile?.isAvailable ? '● Online' : '○ Offline'}
@@ -136,10 +136,10 @@ export default function DriverProfile() {
             <article className="glass-panel rounded-2xl p-5">
               <p className="mb-3 text-[10px] uppercase tracking-[0.18em] text-[#7eaec4]">Rating</p>
               <div className="flex items-end gap-3">
-                <p className="text-5xl font-black text-[#e4f9ff]">{Number(profile?.rating ?? 0).toFixed(1)}</p>
+                <p className="text-5xl font-black text-[#f0f0f0]">{Number(profile?.rating ?? 0).toFixed(1)}</p>
                 <div className="pb-1">
                   <p className="text-lg tracking-widest text-[#f3b85a]">{stars(Number(profile?.rating ?? 0))}</p>
-                  <p className="text-[10px] text-[#4a8fa8]">out of 5.0</p>
+                  <p className="text-[10px] text-[#888888]">out of 5.0</p>
                 </div>
               </div>
             </article>
@@ -149,14 +149,14 @@ export default function DriverProfile() {
               <p className="mb-3 text-[10px] uppercase tracking-[0.18em] text-[#7eaec4]">Performance</p>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: 'Total Missions', value: stats?.total     ?? 0, color: 'border-[#2ec5f5]/30 bg-[#071d29]' },
-                  { label: 'Completed',      value: stats?.completed ?? 0, color: 'border-[#42d99a]/30 bg-[#071f23]' },
+                  { label: 'Total Missions', value: stats?.total     ?? 0, color: 'border-[#fe7f32]/30 bg-[#071d29]' },
+                  { label: 'Completed',      value: stats?.completed ?? 0, color: 'border-[#fe7f32]/30 bg-[#071f23]' },
                   { label: 'Confirmed',      value: stats?.confirmed ?? 0, color: 'border-[#f3b85a]/30 bg-[#211d07]' },
                   { label: 'Pending',        value: stats?.pending   ?? 0, color: 'border-[#a78bfa]/30 bg-[#201a33]' },
                 ].map(k => (
                   <div key={k.label} className={`rounded-xl border p-3 ${k.color}`}>
                     <p className="text-[10px] uppercase tracking-widest text-[#7eaec4]">{k.label}</p>
-                    <p className="mt-1 text-2xl font-black text-[#e4f9ff]">{k.value}</p>
+                    <p className="mt-1 text-2xl font-black text-[#f0f0f0]">{k.value}</p>
                   </div>
                 ))}
               </div>
@@ -165,8 +165,8 @@ export default function DriverProfile() {
             {/* Earnings */}
             <article className="glass-panel rounded-2xl p-5">
               <p className="mb-1 text-[10px] uppercase tracking-[0.18em] text-[#7eaec4]">Total Earnings</p>
-              <p className="text-3xl font-black text-[#42d99a]">${Number(stats?.earnings ?? 0).toFixed(2)}</p>
-              <p className="mt-1 text-[10px] text-[#4a8fa8]">From completed trips only</p>
+              <p className="text-3xl font-black text-[#fe7f32]">${Number(stats?.earnings ?? 0).toFixed(2)}</p>
+              <p className="mt-1 text-[10px] text-[#888888]">From completed trips only</p>
             </article>
           </div>
         </div>
