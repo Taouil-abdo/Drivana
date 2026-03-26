@@ -27,9 +27,9 @@ export default function AdminDashboard() {
         apiClient.get('/admin/revenue/monthly'),
       ]);
       setStats(s.data);
-      setUsers((u.data ?? []).slice(0, 5));
+      setUsers((u.data?.data ?? u.data ?? []).slice(0, 5));
       setDrivers(d.data ?? []);
-      setReservations((r.data ?? []).slice(0, 5));
+      setReservations((r.data?.data ?? r.data ?? []).slice(0, 5));
       setRevenue(rev.data ?? []);
     } catch {
       toast('Failed to load dashboard data', 'error');

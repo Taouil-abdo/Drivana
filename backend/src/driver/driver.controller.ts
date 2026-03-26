@@ -60,4 +60,16 @@ export class DriverController {
   toggleAvailability(@GetUser() user: any) {
     return this.driverService.toggleAvailability(user.id);
   }
+
+  @Get('earnings')
+  @ApiOperation({ summary: 'Get earnings breakdown by trip and month' })
+  getEarningsBreakdown(@GetUser() user: any) {
+    return this.driverService.getEarningsBreakdown(user.id);
+  }
+
+  @Get('notifications/pending')
+  @ApiOperation({ summary: 'Get count of pending reservations (for notification badge)' })
+  getPendingCount(@GetUser() user: any) {
+    return this.driverService.getPendingCount(user.id);
+  }
 }

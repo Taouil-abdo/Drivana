@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import apiClient from '@/lib/api';
 import ToastContainer from '@/components/admin/Toast';
 import { useToast } from '@/lib/useToast';
+import Pagination from '@/components/admin/Pagination';
 
 const STATUS_STYLE: Record<string, string> = {
   PENDING:   'bg-[#f3b85a]/20 text-[#f3b85a] border-[#f3b85a]/30',
@@ -13,6 +14,7 @@ const STATUS_STYLE: Record<string, string> = {
 };
 
 const FILTERS = ['ALL', 'CONFIRMED', 'PENDING', 'COMPLETED', 'CANCELLED'];
+const LIMIT = 10;
 
 export default function DriverReservations() {
   const { toasts, toast, remove } = useToast();
@@ -23,6 +25,7 @@ export default function DriverReservations() {
   const [search,       setSearch]       = useState('');
   const [completing,   setCompleting]   = useState<string | null>(null);
   const [actioning,    setActioning]    = useState<string | null>(null);
+  const [page,         setPage]         = useState(1);
 
   useEffect(() => { fetchReservations(); }, []);
 
@@ -85,6 +88,9 @@ export default function DriverReservations() {
     return matchFilter && matchSearch;
   });
 
+  const totalPages = Math.ceil(visible.length / LIMIT);
+  const paginated  = visible.slice((page - 1) * LIMIT, page * LIMIT);
+
   const earnings = reservations
     .filter(r => r.status === 'COMPLETED')
     .reduce((sum, r) => sum + Number(r.totalPrice ?? 0), 0);
@@ -109,7 +115,7 @@ export default function DriverReservations() {
       {/* Filter tabs + search */}
       <div className="mb-4 flex flex-wrap gap-2">
         {FILTERS.map(f => (
-          <button key={f} onClick={() => setFilter(f)}
+          <button key={f} onClick={() => { setFilter(f); setPage(1); }}
             className={`rounded-xl border px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition
               ${filter === f
                 ? 'border-[#fe7f32]/50 bg-[#fe7f32]/15 text-[#fe7f32]'
@@ -118,7 +124,7 @@ export default function DriverReservations() {
           </button>
         ))}
         <input
-          value={search} onChange={e => setSearch(e.target.value)}
+          value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
           placeholder="Search client or vehicle..."
           className="ml-auto rounded-xl border border-[#3a3a3a] bg-[#1c1c1c] px-3 py-1.5 text-xs text-[#eeeeee] placeholder-[#888888] outline-none focus:border-[#fe7f32]"
         />
@@ -144,7 +150,7 @@ export default function DriverReservations() {
             <tbody>
               {visible.length === 0 ? (
                 <tr><td colSpan={6} className="px-4 py-10 text-center text-[#888888]">No reservations found</td></tr>
-              ) : visible.map((r: any) => (
+              ) : paginated.map((r: any) => (
                 <tr key={r.id} className="border-b border-[#0d2e42] hover:bg-[#222222]/60 transition">
                   <td className="px-4 py-3">
                     <p className="font-semibold text-[#ddf8ff]">{r.client?.firstName} {r.client?.lastName}</p>
@@ -202,6 +208,7 @@ export default function DriverReservations() {
           </table>
         </div>
       )}
+      <Pagination page={page} totalPages={totalPages} total={visible.length} limit={LIMIT} onPage={setPage} />
     </>
   );
 }

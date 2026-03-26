@@ -2,8 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/lib/store/auth';
 import ThemeToggle from '@/components/ThemeToggle';
+import apiClient from '@/lib/api';
 
 const NAV = [
   {
@@ -41,6 +43,18 @@ export default function DriverSidebar({ isOpen, onClose }: { isOpen?: boolean; o
   const pathname = usePathname();
   const router   = useRouter();
   const { user, logout } = useAuthStore();
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    const fetchPending = () => {
+      apiClient.get('/driver/notifications/pending')
+        .then(res => setPendingCount(res.data?.count ?? 0))
+        .catch(() => {});
+    };
+    fetchPending();
+    const interval = setInterval(fetchPending, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <>
@@ -110,7 +124,14 @@ export default function DriverSidebar({ isOpen, onClose }: { isOpen?: boolean; o
                 {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-[#fe7f32]" />}
                 <span style={{ color: active ? '#fe7f32' : 'var(--text-muted)' }}>{item.icon}</span>
                 {item.label}
-                {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#fe7f32]" />}
+                {item.href === '/driver/reservations' && pendingCount > 0 && (
+                  <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-[#fe7f32] px-1 text-[9px] font-black text-white">
+                    {pendingCount}
+                  </span>
+                )}
+                {active && item.href !== '/driver/reservations' && (
+                  <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#fe7f32]" />
+                )}
               </Link>
             );
           })}

@@ -56,6 +56,16 @@ const NAV = [
       </svg>
     ),
   },
+  {
+    label: 'Verifications',
+    href: '/admin/verifications',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-4 w-4">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <path d="m9 12 2 2 4-4" />
+      </svg>
+    ),
+  },
 ];
 
 export default function AdminSidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
@@ -80,6 +90,7 @@ export default function AdminSidebar({ isOpen, onClose }: { isOpen?: boolean; on
         {/* ── Logo ── */}
         <div className="flex items-center justify-between px-5 pt-5 pb-4"
           style={{ borderBottom: '1px solid var(--line-soft)' }}>
+            <Link href={'/'}>
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#fe7f32] to-[#e06820] shadow-lg shadow-[#fe7f32]/20">
               <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} className="h-4 w-4">
@@ -91,6 +102,7 @@ export default function AdminSidebar({ isOpen, onClose }: { isOpen?: boolean; on
           <button onClick={onClose} className="rounded-lg p-1 xl:hidden transition" style={{ color: 'var(--text-muted)' }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
+          </Link>
         </div>
 
         {/* ── Admin badge ── */}

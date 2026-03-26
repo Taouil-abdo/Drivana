@@ -30,7 +30,7 @@ export class AuthService {
       firstName: dto.firstName,
       lastName: dto.lastName,
       phone: dto.phone,
-      role: (dto.role as Role) || Role.CLIENT,
+      role: Role.CLIENT,
     });
 
     await this.userRepository.save(user);

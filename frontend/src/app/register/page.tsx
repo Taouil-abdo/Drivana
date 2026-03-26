@@ -15,7 +15,6 @@ export default function RegisterPage() {
     firstName: '',
     lastName: '',
     phone: '',
-    role: 'CLIENT',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -127,18 +126,6 @@ export default function RegisterPage() {
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     />
-                  </div>
-
-                  <div>
-                    <label className="mb-1 block text-[11px] uppercase tracking-[0.15em] text-[#aaaaaa]">Register As</label>
-                    <select
-                      className="w-full rounded-lg border border-[#444444] bg-[#1a1a1a] px-4 py-2.5 text-sm text-[#eeeeee] outline-none focus:border-[#fe7f32]"
-                      value={formData.role}
-                      onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                    >
-                      <option value="CLIENT">Client</option>
-                      <option value="DRIVER">Driver</option>
-                    </select>
                   </div>
                 </div>
 
