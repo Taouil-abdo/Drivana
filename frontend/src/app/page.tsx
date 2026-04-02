@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import apiClient from "@/lib/api";
 
@@ -173,9 +174,45 @@ const STATS = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loadingVehicles, setLoadingVehicles] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // ── Search card state ──
+  const [serviceType, setServiceType] = useState<'CAR_ONLY' | 'WITH_DRIVER'>('CAR_ONLY');
+  const [startDate,   setStartDate]   = useState('');
+  const [endDate,     setEndDate]     = useState('');
+  const [brand,       setBrand]       = useState('');
+  const [searching,   setSearching]   = useState(false);
+  const [results,     setResults]     = useState<Vehicle[] | null>(null);
+  const [searchErr,   setSearchErr]   = useState('');
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearchErr('');
+    if (!startDate || !endDate) { setSearchErr('Please select both dates.'); return; }
+    if (endDate <= startDate)   { setSearchErr('Return date must be after pick-up date.'); return; }
+    setSearching(true);
+    try {
+      const params = new URLSearchParams({ startDate, endDate });
+      if (brand.trim()) params.set('brand', brand.trim());
+      const res = await apiClient.get(`/client/vehicles?${params}`);
+      setResults(res.data ?? []);
+      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    } catch {
+      setSearchErr('Failed to search. Please try again.');
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const days = startDate && endDate
+    ? Math.max(0, Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000))
+    : 0;
 
   useEffect(() => {
     apiClient
@@ -386,13 +423,12 @@ export default function Home() {
 
             {/* ── Right: search card ── */}
             <div className="relative">
-              {/* Glow behind card */}
               <div className="absolute -inset-4 rounded-3xl bg-[#fe7f32]/5 blur-2xl" />
               <div className="relative rounded-3xl border border-[#3a3a3a]/60 bg-[#1c1c1c]/80 p-7 shadow-2xl shadow-black/40 backdrop-blur-xl">
                 {/* Card header */}
-                <div className="mb-6 flex items-center justify-between">
+                <div className="mb-5 flex items-center justify-between">
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#888888]">Quick Search</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#888888]">Live Availability</p>
                     <p className="mt-0.5 text-base font-black uppercase tracking-wide text-[#eeeeee]">Find Your Ride</p>
                   </div>
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#fe7f32]/20 bg-[#fe7f32]/10">
@@ -402,39 +438,33 @@ export default function Home() {
                   </div>
                 </div>
 
-                <form className="space-y-3" onSubmit={e => e.preventDefault()}>
-                  {/* Service type tabs */}
-                  <div className="grid grid-cols-3 gap-1.5 rounded-xl border border-[#3a3a3a] bg-[#111111]/60 p-1">
-                    {['Self-Drive', 'With Driver', 'Transfer'].map((t, i) => (
-                      <button key={t} type="button"
-                        className={`rounded-lg py-2 text-[10px] font-bold uppercase tracking-wider transition ${i === 0 ? 'bg-[#fe7f32]/15 text-[#fe7f32] border border-[#fe7f32]/30' : 'text-[#888888] hover:text-[#aaaaaa]'}`}>
-                        {t}
+                <form className="space-y-3" onSubmit={handleSearch}>
+                  {/* Service type */}
+                  <div className="grid grid-cols-2 gap-1.5 rounded-xl border border-[#3a3a3a] bg-[#111111]/60 p-1">
+                    {([['CAR_ONLY', '🚗 Self-Drive'], ['WITH_DRIVER', '🧑‍✈️ With Driver']] as const).map(([val, label]) => (
+                      <button key={val} type="button" onClick={() => setServiceType(val)}
+                        className={`rounded-lg py-2 text-[10px] font-bold uppercase tracking-wider transition
+                          ${serviceType === val ? 'bg-[#fe7f32]/15 text-[#fe7f32] border border-[#fe7f32]/30' : 'text-[#888888] hover:text-[#aaaaaa]'}`}>
+                        {label}
                       </button>
                     ))}
                   </div>
 
-                  {/* Fields */}
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#888888]">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-4 w-4">
-                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-                        </svg>
-                      </span>
-                      <input placeholder="Pickup City"
-                        className="w-full rounded-xl border border-[#3a3a3a] bg-[#111111]/60 pl-9 pr-3 py-2.5 text-sm text-[#eeeeee] outline-none placeholder:text-[#888888] focus:border-[#fe7f32] transition" />
-                    </div>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#888888]">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-4 w-4">
-                          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                        </svg>
-                      </span>
-                      <input placeholder="Pick-up Date" type="date"
-                        className="w-full rounded-xl border border-[#3a3a3a] bg-[#111111]/60 pl-9 pr-3 py-2.5 text-sm text-[#eeeeee] outline-none placeholder:text-[#888888] focus:border-[#fe7f32] transition [color-scheme:dark]" />
-                    </div>
+                  {/* Brand filter */}
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#888888]">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-4 w-4">
+                        <path d="M5 17H3v-5l2-5h14l2 5v5h-2"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/>
+                      </svg>
+                    </span>
+                    <input
+                      value={brand} onChange={e => setBrand(e.target.value)}
+                      placeholder="Brand (optional — e.g. Toyota)"
+                      className="w-full rounded-xl border border-[#3a3a3a] bg-[#111111]/60 pl-9 pr-3 py-2.5 text-sm text-[#eeeeee] outline-none placeholder:text-[#888888] focus:border-[#fe7f32] transition"
+                    />
                   </div>
 
+                  {/* Dates */}
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#888888]">
@@ -442,34 +472,101 @@ export default function Home() {
                           <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
                         </svg>
                       </span>
-                      <input placeholder="Return Date" type="date"
-                        className="w-full rounded-xl border border-[#3a3a3a] bg-[#111111]/60 pl-9 pr-3 py-2.5 text-sm text-[#eeeeee] outline-none placeholder:text-[#888888] focus:border-[#fe7f32] transition [color-scheme:dark]" />
+                      <input type="date" min={today} value={startDate}
+                        onChange={e => { setStartDate(e.target.value); setResults(null); }}
+                        className="w-full rounded-xl border border-[#3a3a3a] bg-[#111111]/60 pl-9 pr-3 py-2.5 text-sm text-[#eeeeee] outline-none focus:border-[#fe7f32] transition [color-scheme:dark]" />
                     </div>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#888888]">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-4 w-4">
-                          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
                         </svg>
                       </span>
-                      <select className="w-full rounded-xl border border-[#3a3a3a] bg-[#111111]/60 pl-9 pr-3 py-2.5 text-sm text-[#aaaaaa] outline-none focus:border-[#fe7f32] transition">
-                        <option value="">Passengers</option>
-                        <option>1–2</option>
-                        <option>3–4</option>
-                        <option>5+</option>
-                      </select>
+                      <input type="date" min={startDate || today} value={endDate}
+                        onChange={e => { setEndDate(e.target.value); setResults(null); }}
+                        className="w-full rounded-xl border border-[#3a3a3a] bg-[#111111]/60 pl-9 pr-3 py-2.5 text-sm text-[#eeeeee] outline-none focus:border-[#fe7f32] transition [color-scheme:dark]" />
                     </div>
                   </div>
 
-                  <Link href="/register"
-                    className="group flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#fe7f32] to-[#e06820] py-3.5 text-xs font-bold uppercase tracking-widest text-[#111111] shadow-lg shadow-[#fe7f32]/20 transition hover:shadow-[#fe7f32]/35 hover:scale-[1.01]">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className="h-4 w-4">
-                      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-                    </svg>
-                    Search Available Cars
-                  </Link>
+                  {/* Duration pill */}
+                  {days > 0 && (
+                    <p className="text-center text-[11px] text-[#fe7f32] font-semibold">
+                      {days} day{days > 1 ? 's' : ''} selected
+                    </p>
+                  )}
+
+                  {searchErr && (
+                    <p className="text-[11px] text-[#f87171]">{searchErr}</p>
+                  )}
+
+                  <button type="submit" disabled={searching}
+                    className="group flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#fe7f32] to-[#e06820] py-3.5 text-xs font-bold uppercase tracking-widest text-[#111111] shadow-lg shadow-[#fe7f32]/20 transition hover:shadow-[#fe7f32]/35 hover:scale-[1.01] disabled:opacity-60 disabled:scale-100">
+                    {searching ? (
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#111] border-t-transparent" />
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className="h-4 w-4">
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                      </svg>
+                    )}
+                    {searching ? 'Searching...' : 'Search Available Cars'}
+                  </button>
                 </form>
 
-                {/* Bottom note */}
+                {/* Inline results */}
+                {results !== null && (
+                  <div ref={resultsRef} className="mt-4 border-t border-[#3a3a3a]/60 pt-4">
+                    {results.length === 0 ? (
+                      <p className="text-center text-xs text-[#888888] py-3">
+                        No vehicles available for those dates.{' '}
+                        <button onClick={() => { setStartDate(''); setEndDate(''); setResults(null); }}
+                          className="text-[#fe7f32] underline">Clear dates</button>
+                      </p>
+                    ) : (
+                      <>
+                        <p className="mb-3 text-[10px] uppercase tracking-widest text-[#888888]">
+                          {results.length} vehicle{results.length > 1 ? 's' : ''} available
+                        </p>
+                        <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1">
+                          {results.map(v => (
+                            <div key={v.id}
+                              className="flex items-center gap-3 rounded-xl border border-[#3a3a3a] bg-[#111111]/60 p-3 hover:border-[#fe7f32]/40 transition">
+                              {v.imageUrl ? (
+                                <img src={v.imageUrl} alt={v.brand}
+                                  className="h-12 w-16 shrink-0 rounded-lg object-cover border border-[#3a3a3a]" />
+                              ) : (
+                                <div className="flex h-12 w-16 shrink-0 items-center justify-center rounded-lg border border-[#3a3a3a] bg-[#1c1c1c] text-[#3a3a3a]">
+                                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1} className="h-7 w-7">
+                                    <path d="M5 17H3v-5l2-5h14l2 5v5h-2"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/>
+                                  </svg>
+                                </div>
+                              )}
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-xs font-bold text-[#eeeeee]">{v.brand} {v.model}</p>
+                                <p className="text-[10px] text-[#888888]">{v.year}</p>
+                              </div>
+                              <div className="text-right shrink-0">
+                                <p className="text-sm font-black text-[#fe7f32]">${Number(v.pricePerDay).toFixed(0)}<span className="text-[9px] font-normal text-[#888888]">/day</span></p>
+                                {days > 0 && <p className="text-[9px] text-[#888888]">${(Number(v.pricePerDay) * days).toFixed(0)} total</p>}
+                              </div>
+                              <Link
+                                href={`/client/booking/${v.id}?from=${startDate}&to=${endDate}`}
+                                className="shrink-0 rounded-lg border border-[#fe7f32]/40 bg-[#fe7f32]/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#fe7f32] hover:bg-[#fe7f32]/20 transition">
+                                Book
+                              </Link>
+                            </div>
+                          ))}
+                        </div>
+                        {results.length > 3 && (
+                          <Link href={`/client/vehicles?startDate=${startDate}&endDate=${endDate}`}
+                            className="mt-3 block text-center text-[10px] text-[#fe7f32] hover:underline">
+                            View all {results.length} vehicles →
+                          </Link>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+
                 <p className="mt-4 text-center text-[10px] text-[#3a7a96]">
                   Free cancellation · No credit card required to search
                 </p>

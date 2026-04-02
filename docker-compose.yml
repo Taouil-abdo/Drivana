@@ -38,6 +38,8 @@ services:
       JWT_SECRET: drivana-secret-key-change-in-production
       JWT_EXPIRES_IN: 7d
       FRONTEND_URL: http://nginx:80
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
     ports:
       - '3002:3002'
     healthcheck:
@@ -53,6 +55,9 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_URL: /api
+        NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: dwdaxhi9k
+        NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: nest_uploads
+        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_51TEtQL9bmBpxoaFpK2wVLI6haNcbfDR0TLGVxrgmuUSMGGAibdxullBDP9lAQV7QPBgiEgFZlvEZsuCKu88xXsmO009qd85nDV
     container_name: drivana_frontend
     restart: unless-stopped
     depends_on:

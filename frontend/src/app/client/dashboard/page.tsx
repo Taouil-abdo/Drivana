@@ -51,6 +51,9 @@ export default function ClientDashboard() {
   const [reservations, setReservations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState(new Date());
+  const [showBecomeDriver, setShowBecomeDriver] = useState(false);
+  const [driverForm, setDriverForm] = useState({ licenseNumber: '', experienceYears: '', photo: '' });
+  const [submittingDriver, setSubmittingDriver] = useState(false);
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
@@ -73,6 +76,25 @@ export default function ClientDashboard() {
       }
     })();
   }, []);
+
+  const submitDriverApplication = async () => {
+    if (!driverForm.licenseNumber || !driverForm.experienceYears) {
+      toast('License number and experience are required', 'error'); return;
+    }
+    setSubmittingDriver(true);
+    try {
+      await apiClient.post('/auth/become-driver', {
+        licenseNumber: driverForm.licenseNumber,
+        experienceYears: Number(driverForm.experienceYears),
+        photo: driverForm.photo || undefined,
+      });
+      toast('Application submitted! Awaiting admin approval.', 'success');
+      setShowBecomeDriver(false);
+      setDriverForm({ licenseNumber: '', experienceYears: '', photo: '' });
+    } catch (e: any) {
+      toast(e?.response?.data?.message ?? 'Failed to submit application', 'error');
+    } finally { setSubmittingDriver(false); }
+  };
 
   const cancelled  = reservations.filter(r => r.status === 'CANCELLED').length;
   const withDriver = reservations.filter(r => r.serviceType === 'WITH_DRIVER').length;
@@ -213,6 +235,31 @@ export default function ClientDashboard() {
             </article>
           </div>
 
+          {/* Become a Driver banner */}
+          <article className="mb-4 overflow-hidden rounded-2xl border border-[#fe7f32]/20"
+            style={{
+              background: 'linear-gradient(135deg, rgba(254,127,50,0.08) 0%, rgba(30,30,30,0.6) 100%)',
+            }}>
+            <div className="flex flex-wrap items-center justify-between gap-4 p-5">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#fe7f32]/15 text-2xl border border-[#fe7f32]/20">
+                  🧑‍✈️
+                </div>
+                <div>
+                  <p className="font-black text-[#eeeeee]">Want to earn as a driver?</p>
+                  <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                    Join our driver network — set your schedule, accept rides, earn money.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowBecomeDriver(true)}
+                className="rounded-xl border border-[#fe7f32]/50 bg-[#fe7f32]/15 px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-[#fe7f32] hover:bg-[#fe7f32]/25 transition whitespace-nowrap">
+                Apply to Drive →
+              </button>
+            </div>
+          </article>
+
           <article className="glass-panel scan-lines rounded-2xl p-4 sm:p-5">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm font-black uppercase tracking-[0.14em] text-[#eeeeee]">All Trips</p>
@@ -282,6 +329,78 @@ export default function ClientDashboard() {
             </div>
           </article>
         </>
+      )}
+
+      {/* Become a Driver Modal */}
+      {showBecomeDriver && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="glass-panel w-full max-w-md rounded-2xl p-6">
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-black uppercase tracking-widest page-title">Become a Driver</h2>
+                <p className="mt-1 text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                  Your application will be reviewed by an admin.
+                </p>
+              </div>
+              <button onClick={() => setShowBecomeDriver(false)} style={{ color: 'var(--text-muted)' }}>✕</button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="mb-1 block text-[10px] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                  License Number *
+                </label>
+                <input
+                  value={driverForm.licenseNumber}
+                  onChange={e => setDriverForm(f => ({ ...f, licenseNumber: e.target.value }))}
+                  placeholder="e.g. DL-123456"
+                  className="w-full rounded-xl border border-[#3a3a3a] bg-[#1c1c1c] px-3 py-2.5 text-xs text-[#eeeeee] placeholder-[#888888] outline-none focus:border-[#fe7f32]"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                  Years of Experience *
+                </label>
+                <input
+                  type="number" min="0"
+                  value={driverForm.experienceYears}
+                  onChange={e => setDriverForm(f => ({ ...f, experienceYears: e.target.value }))}
+                  placeholder="e.g. 3"
+                  className="w-full rounded-xl border border-[#3a3a3a] bg-[#1c1c1c] px-3 py-2.5 text-xs text-[#eeeeee] placeholder-[#888888] outline-none focus:border-[#fe7f32]"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                  Profile Photo URL (optional)
+                </label>
+                <input
+                  value={driverForm.photo}
+                  onChange={e => setDriverForm(f => ({ ...f, photo: e.target.value }))}
+                  placeholder="https://..."
+                  className="w-full rounded-xl border border-[#3a3a3a] bg-[#1c1c1c] px-3 py-2.5 text-xs text-[#eeeeee] placeholder-[#888888] outline-none focus:border-[#fe7f32]"
+                />
+              </div>
+
+              <div className="rounded-xl border border-[#f3b85a]/20 bg-[#f3b85a]/5 px-3 py-2.5">
+                <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                  ⚠ After submitting, an admin will review your application. You'll remain a client until approved.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 flex gap-3">
+              <button onClick={() => setShowBecomeDriver(false)}
+                className="flex-1 rounded-xl border py-2.5 text-xs font-bold uppercase tracking-wider transition"
+                style={{ borderColor: 'var(--line-soft)', color: 'var(--text-soft)' }}>
+                Cancel
+              </button>
+              <button onClick={submitDriverApplication} disabled={submittingDriver}
+                className="flex-1 rounded-xl border border-[#fe7f32]/40 bg-[#fe7f32]/15 py-2.5 text-xs font-bold uppercase tracking-widest text-[#fe7f32] hover:bg-[#fe7f32]/25 transition disabled:opacity-50">
+                {submittingDriver ? 'Submitting...' : 'Submit Application'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

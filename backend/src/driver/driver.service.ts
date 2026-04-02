@@ -76,6 +76,41 @@ export class DriverService {
     return { total, completed, pending, confirmed, earnings, rating: Number(driver.rating), isAvailable: driver.isAvailable };
   }
 
+  async getEarningsBreakdown(userId: string) {
+    const driver = await this.driverRepo.findOne({ where: { user: { id: userId } } });
+    if (!driver) throw new NotFoundException('Driver profile not found');
+
+    const trips = await this.reservationRepo.find({
+      where: { driver: { id: driver.id }, status: ReservationStatus.COMPLETED },
+      relations: ['vehicle', 'client'],
+      order: { createdAt: 'DESC' },
+    });
+
+    const total = trips.reduce((sum, r) => sum + Number(r.totalPrice ?? 0), 0);
+
+    // Group by month
+    const byMonth: Record<string, number> = {};
+    trips.forEach(r => {
+      const month = new Date(r.createdAt).toISOString().slice(0, 7);
+      byMonth[month] = (byMonth[month] ?? 0) + Number(r.totalPrice ?? 0);
+    });
+
+    const monthly = Object.entries(byMonth)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, amount]) => ({ month, amount }));
+
+    return { total, monthly, trips };
+  }
+
+  async getPendingCount(userId: string) {
+    const driver = await this.driverRepo.findOne({ where: { user: { id: userId } } });
+    if (!driver) return { count: 0 };
+    const count = await this.reservationRepo.count({
+      where: { driver: { id: driver.id }, status: ReservationStatus.PENDING },
+    });
+    return { count };
+  }
+
   async acceptReservation(userId: string, reservationId: string) {
     const driver = await this.driverRepo.findOne({ where: { user: { id: userId } } });
     if (!driver) throw new NotFoundException('Driver profile not found');
